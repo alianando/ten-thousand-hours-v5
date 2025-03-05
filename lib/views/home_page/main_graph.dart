@@ -4,7 +4,7 @@ import 'package:ten_thousands_hours/models/time_data/model/time_data.dart';
 import 'package:ten_thousands_hours/providers/ticker_provider.dart';
 import 'package:ten_thousands_hours/utils/dt_utils.dart';
 
-import '../../models/time_data/model/day_model.dart';
+import '../../models/time_data/model/day_model/day_model.dart';
 import '../../models/time_data/model/session_data.dart';
 import '../../models/time_data/model/stat_data.dart';
 import '../../providers/time_data_provider.dart';

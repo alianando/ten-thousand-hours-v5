@@ -20,7 +20,7 @@ class AllDaysListview extends ConsumerWidget {
             timeData.days[index].durPoint.dt.toString(),
           ),
           title: Text(
-            '${DtUtils.dateString(timeData.days[index].lastUpdate)}, Dur: ${DtUtils.durToHMS(timeData.days[index].durPoint.dur)}',
+            '${DtUtils.dateString(timeData.days[index].dt)}, Dur: ${DtUtils.durToHMS(timeData.days[index].durPoint.dur)}',
           ),
           trailing: Text(index.toString()),
           subtitle: CustomPaint(

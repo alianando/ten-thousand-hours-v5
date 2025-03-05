@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:ten_thousands_hours/models/time_data/model/day_model.dart';
-import 'package:ten_thousands_hours/models/time_data/model/time_point.dart';
+import 'package:ten_thousands_hours/models/time_data/model/day_model/day_model.dart';
+import 'package:ten_thousands_hours/models/time_data/model/time_point/time_point.dart';
 import 'package:ten_thousands_hours/providers/time_data_provider.dart';
 
 final weekDataProvider = Provider((ref) {
@@ -128,11 +128,10 @@ class WeekData extends ConsumerWidget {
 
         // Find the corresponding day data
         final dayData = weekDays.firstWhere(
-          (day) => _getDayOfWeek(day.lastUpdate) == dayOfWeek,
+          (day) => _getDayOfWeek(day.dt) == dayOfWeek,
           orElse: () => DayModel(
             // Default empty day
-            lastUpdate:
-                today.subtract(Duration(days: today.weekday - dayOfWeek)),
+            dt: today.subtract(Duration(days: today.weekday - dayOfWeek)),
             durPoint: TimePoint(
               dt: DateTime.now(),
               dur: Duration.zero,
@@ -265,7 +264,7 @@ class WeekData extends ConsumerWidget {
     final dateFormat = DateFormat('EEEE');
     final mostProductiveDayName = mostProductiveDay != null &&
             mostProductiveDay.durPoint.dur.inSeconds > 0
-        ? dateFormat.format(mostProductiveDay.lastUpdate)
+        ? dateFormat.format(mostProductiveDay.dt)
         : 'None yet';
 
     return Column(

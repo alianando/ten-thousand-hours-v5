@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ten_thousands_hours/models/time_data/model/day_model.dart';
+import 'package:ten_thousands_hours/models/time_data/model/day_model/day_model.dart';
 import 'package:ten_thousands_hours/models/time_data/model/indecies_model.dart';
 import 'package:ten_thousands_hours/models/time_data/model/session_data.dart';
 import 'package:ten_thousands_hours/models/time_data/model/stat_data.dart';
@@ -25,16 +25,16 @@ void main() {
       // act
       final session = SessionServices.createDefaultSession(pastDt);
       DayModel dayData = DayModelService.createNewDay(pastDt);
-      dayData = DayModelService.addEvent(
+      dayData = DayModelService.addActiveEvent(
         day: dayData,
-        at: pastDt.add(const Duration(minutes: 10)),
+        dtAt: pastDt.add(const Duration(minutes: 10)),
       );
-      dayData = DayModelService.addEvent(day: dayData, at: event1);
-      dayData = DayModelService.addEvent(day: dayData, at: event2);
-      dayData = DayModelService.addEvent(day: dayData, at: event3);
-      dayData = DayModelService.addEvent(day: dayData, at: event4);
-      dayData = DayModelService.addEvent(day: dayData, at: event5);
-      dayData = DayModelService.addEvent(day: dayData, at: event6);
+      dayData = DayModelService.addActiveEvent(day: dayData, dtAt: event1);
+      dayData = DayModelService.addActiveEvent(day: dayData, dtAt: event2);
+      dayData = DayModelService.addActiveEvent(day: dayData, dtAt: event3);
+      dayData = DayModelService.addActiveEvent(day: dayData, dtAt: event4);
+      dayData = DayModelService.addActiveEvent(day: dayData, dtAt: event5);
+      dayData = DayModelService.addActiveEvent(day: dayData, dtAt: event6);
       dayData = DayModelService.endDay(dayData);
       final stat = StatServices.updateStatistics(
         oldStat: StatServices.createDefaultStat(),
@@ -44,7 +44,7 @@ void main() {
       );
       dayData = DayModelService.updateCoordinates(
         day: dayData,
-        at: pastDt,
+        timeAt: pastDt,
         sessionStartDt: session.sessionStartDt,
         sessionEndDt: session.sessionEndDt,
         coordinateMaxDur: stat.maxDurReleventDays,
@@ -52,7 +52,7 @@ void main() {
       );
       final List<DayModel> days = [dayData];
       final indecies = IndicesServices.updateIndices(
-        dayDates: days.map((e) => e.lastUpdate).toList(),
+        dayDates: days.map((e) => e.dt).toList(),
       );
       final oldTImeData = TimeData(
         lastUpdate: pastDt,

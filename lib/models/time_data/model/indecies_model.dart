@@ -1,4 +1,4 @@
-import 'time_point.dart';
+import 'time_point/time_point.dart';
 
 class Indices {
   final int today;

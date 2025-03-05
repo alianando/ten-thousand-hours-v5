@@ -41,13 +41,6 @@ class _TickerLayerState extends ConsumerState<TickerLayer> {
   Widget build(BuildContext context) {
     ref.listen(ticPro, (past, present) {
       ref.read(timeDataProvider.notifier).handelTick();
-      // if (DtUtils.sameDay(ref.read(todayDataPro).lastUpdate, present)) {
-      //   // debugPrint(present.toString());
-      // } else {
-      //   // ref.read(appDataProvider.notifier).updateToday(ref.read(todayDataPro));
-      //   // final newDay = DayDataServices.emptyDay(date: present);
-      //   // ref.read(todayDataPro.notifier).updateDay(newDay);
-      // }
     });
     return const MyApp();
   }

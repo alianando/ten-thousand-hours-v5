@@ -3,7 +3,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ten_thousands_hours/providers/storage_pro.dart';
 import 'package:ten_thousands_hours/root/root.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ten_thousands_hours/test/test_view.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:ten_thousands_hours/views/home_page/home_page.dart';
 
@@ -30,7 +29,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,

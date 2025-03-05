@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ten_thousands_hours/providers/ticker_provider.dart';
 
 import '../../models/time_data/model/time_data.dart';
-import '../../models/time_data/model/time_point.dart';
+import '../../models/time_data/model/time_point/time_point.dart';
 import '../../providers/time_data_provider.dart';
 
 final eventStatusProvider = StateProvider<bool>((ref) {

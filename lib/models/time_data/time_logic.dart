@@ -3,7 +3,7 @@ import 'package:ten_thousands_hours/utils/dt_utils.dart';
 import 'model/indecies_model.dart';
 import 'model/stat_data.dart';
 import 'model/time_data.dart';
-import 'model/day_model.dart';
+import 'model/day_model/day_model.dart';
 import 'model/session_data.dart';
 
 class TimeLogic {
@@ -16,7 +16,7 @@ class TimeLogic {
     DayModel day = DayModelService.createNewDay(now);
     day = DayModelService.updateCoordinates(
       day: day,
-      at: now,
+      timeAt: now,
       sessionStartDt: session.sessionStartDt,
       sessionEndDt: session.sessionEndDt,
       coordinateMaxDur: stat.maxDurReleventDays,
@@ -43,7 +43,8 @@ class TimeLogic {
     final stat = timeData.statData;
     final indecies = timeData.indices;
     final today = timeData.days[indecies.today];
-    DayModel updatedToday = DayModelService.addEvent(day: today, at: now);
+    DayModel updatedToday =
+        DayModelService.addActiveEvent(day: today, dtAt: now);
     final updatedStat = StatServices.updateStatistics(
       oldStat: stat,
       durIncreased: updatedToday.durPoint.dur - today.durPoint.dur,
@@ -52,7 +53,7 @@ class TimeLogic {
     );
     updatedToday = DayModelService.updateCoordinates(
       day: updatedToday,
-      at: now,
+      timeAt: now,
       sessionStartDt: session.sessionStartDt,
       sessionEndDt: session.sessionEndDt,
       coordinateMaxDur: updatedStat.maxDurReleventDays,

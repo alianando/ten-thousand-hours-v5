@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ten_thousands_hours/models/time_data/model/time_point.dart';
+import 'package:ten_thousands_hours/models/time_data/model/time_point/time_point.dart';
 
 import '../../providers/time_data_provider.dart';
 

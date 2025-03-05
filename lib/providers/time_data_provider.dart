@@ -8,7 +8,7 @@ import 'package:ten_thousands_hours/models/time_data/model/session_data.dart';
 import 'package:ten_thousands_hours/models/time_data/model/stat_data.dart';
 import 'package:ten_thousands_hours/providers/storage_pro.dart';
 
-import '../models/time_data/model/day_model.dart';
+import '../models/time_data/model/day_model/day_model.dart';
 import '../models/time_data/model/time_data.dart';
 import '../models/time_data/time_logic.dart';
 import '../utils/dt_utils.dart';

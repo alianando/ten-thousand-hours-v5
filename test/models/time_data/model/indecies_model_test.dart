@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ten_thousands_hours/models/time_data/model/indecies_model.dart';
-import 'package:ten_thousands_hours/models/time_data/model/day_model.dart';
-import 'package:ten_thousands_hours/models/time_data/model/time_point.dart';
+import 'package:ten_thousands_hours/models/time_data/model/day_model/day_model.dart';
+import 'package:ten_thousands_hours/models/time_data/model/time_point/time_point.dart';
 
 void main() {
   group('Indices Model', () {
@@ -138,7 +138,7 @@ void main() {
       return List.generate(
         80,
         (i) => DayModel(
-          lastUpdate: DateTime.now().subtract(Duration(days: i - 40)),
+          dt: DateTime.now().subtract(Duration(days: i - 40)),
           events: [],
           coordinates: [],
           durPoint: TimePoint(
@@ -156,7 +156,7 @@ void main() {
 
       // Act
       final indices = IndicesServices.updateIndices(
-        dayDates: days.map((d) => d.lastUpdate).toList(),
+        dayDates: days.map((d) => d.dt).toList(),
       );
 
       // Assert

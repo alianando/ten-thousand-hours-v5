@@ -1,10 +1,12 @@
 // ignore_for_file: file_names, non_constant_identifier_names
 
 import 'package:flutter/material.dart';
-import 'package:ten_thousands_hours/models/time_data/model/day_model.dart';
+import 'package:ten_thousands_hours/models/time_data/model/day_model/day_model.dart';
 import 'package:ten_thousands_hours/models/time_data/model/indecies_model.dart';
 import 'package:ten_thousands_hours/models/time_data/model/session_data.dart';
 import 'package:ten_thousands_hours/models/time_data/model/stat_data.dart';
+
+import 'day_model/day_services.dart';
 
 /// Ctrl+Alt+B (Windows/Linux) = opne copilot chat.
 /// Ctrl+B = oben file or debug tab.
@@ -92,7 +94,7 @@ class TimeDataServices {
     );
     final newToday = DayModelService.createNewDay(now);
     days.add(newToday);
-    days.sort((a, b) => a.lastUpdate.compareTo(b.lastUpdate));
+    days.sort((a, b) => a.dt.compareTo(b.dt));
     if (debug) {
       debugPrint('${days.map((d) => d.durPoint.dt.day)}');
     }
@@ -111,7 +113,7 @@ class TimeDataServices {
       final day = days[i];
       days[i] = DayModelService.updateCoordinates(
         day: day,
-        at: day.durPoint.dt,
+        timeAt: day.durPoint.dt,
         sessionStartDt: sessionData.sessionStartDt,
         sessionEndDt: sessionData.sessionEndDt,
         coordinateMaxDur: statData.maxDurReleventDays,
@@ -152,7 +154,7 @@ class TimeDataServices {
     final stat = timeData.statData;
     final timeUpdatedToday = DayModelService.unactiveDtUpdate(
       day: timeData.today,
-      timeAt: nowDt,
+      dtAt: nowDt,
     );
     final updatedStat = StatServices.updateStatistics(
       oldStat: stat,
@@ -162,7 +164,7 @@ class TimeDataServices {
     );
     final updatedToday = DayModelService.updateCoordinates(
       day: timeUpdatedToday,
-      at: nowDt,
+      timeAt: nowDt,
       sessionStartDt: session.sessionStartDt,
       sessionEndDt: session.sessionEndDt,
       coordinateMaxDur: updatedStat.maxDurReleventDays,
@@ -223,7 +225,7 @@ class TimeDataServices {
       final today = i == indecies.today;
       days[i] = DayModelService.updateCoordinates(
         day: day,
-        at: day.durPoint.dt,
+        timeAt: day.durPoint.dt,
         sessionStartDt: newSession.sessionStartDt,
         sessionEndDt: newSession.sessionEndDt,
         coordinateMaxDur: updatedStat.maxDurReleventDays,
@@ -264,7 +266,7 @@ class TimeDataServices {
       final day = updatedDays[i];
       updatedDays[i] = DayModelService.updateCoordinates(
         day: day,
-        at: day.durPoint.dt,
+        timeAt: day.durPoint.dt,
         sessionStartDt: updatedSession.sessionStartDt,
         sessionEndDt: updatedSession.sessionEndDt,
         coordinateMaxDur: updatedStat.maxDurReleventDays,
@@ -274,7 +276,7 @@ class TimeDataServices {
     }
 
     return TimeData(
-      lastUpdate: updatedDays.first.lastUpdate,
+      lastUpdate: updatedDays.first.dt,
       statData: updatedStat,
       sessionData: updatedSession,
       indices: updatedIndices,

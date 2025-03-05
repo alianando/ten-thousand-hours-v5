@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ten_thousands_hours/models/time_data/model/session_data.dart';
 import 'package:ten_thousands_hours/models/time_data/model/time_data.dart';
-import 'package:ten_thousands_hours/models/time_data/model/time_point.dart';
+import 'package:ten_thousands_hours/models/time_data/model/time_point/time_point.dart';
 import 'package:ten_thousands_hours/models/time_data/time_logic.dart';
 
 void main() {
@@ -28,7 +28,7 @@ void main() {
         // Check days
         expect(result.days.length, 1);
         final day = result.days[0];
-        expect(day.lastUpdate, testDateTime);
+        expect(day.dt, testDateTime);
         expect(day.events.length, greaterThanOrEqualTo(1));
 
         // Check session data

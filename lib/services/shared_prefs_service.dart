@@ -25,6 +25,14 @@ class SharedUtility {
     return sharedPreferences.getString('timeData');
   }
 
+  String? getString(String key) {
+    return sharedPreferences.getString(key);
+  }
+
+  void setString(String key, String value) {
+    sharedPreferences.setString(key, value);
+  }
+
   final recordKey = 'record';
   final eventLstKey = 'eventLstKey';
   final timeData = 'timeData';

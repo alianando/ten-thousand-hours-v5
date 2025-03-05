@@ -7,7 +7,7 @@ import 'package:ten_thousands_hours/views/home_page/event_button.dart';
 import 'package:ten_thousands_hours/views/home_page/month_view.dart';
 import 'package:ten_thousands_hours/views/home_page/today_events_listview.dart';
 
-import '../../models/time_data/model/time_point.dart';
+import '../../models/time_data/model/time_point/time_point.dart';
 import '../../providers/time_data_provider.dart';
 import 'all_days_listview.dart';
 import 'main_graph.dart';
