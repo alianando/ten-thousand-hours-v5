@@ -17,20 +17,21 @@ class DayModelService {
     final events = <TimePoint>[];
 
     // Always add midnight point as the first event
-    if (!DtHelper.isDayStartDt(at)) {
-      events.add(TimePoint(
-        dt: dayDt,
-        dur: Duration.zero,
-        typ: TimePointTyp.pause,
-      ));
-    }
-
-    // Add the actual time point
     events.add(TimePoint(
-      dt: at,
+      dt: dayDt,
       dur: Duration.zero,
       typ: TimePointTyp.pause,
     ));
+    // if (!DtHelper.isDayStartDt(at)) {
+
+    // }
+
+    // Add the actual time point
+    // events.add(TimePoint(
+    //   dt: at,
+    //   dur: Duration.zero,
+    //   typ: TimePointTyp.pause,
+    // ));
 
     return DayModel(
       dt: dayDt,

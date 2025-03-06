@@ -160,7 +160,7 @@ class RecordServices {
     final today = DayModelService.createNewDay(now);
 
     return Record(
-      lastUpdate: now,
+      lastUpdate: today.dt,
       days: [today],
     );
   }
@@ -207,7 +207,7 @@ class RecordServices {
     DateTime at, {
     bool debug = false,
   }) {
-    final now = DateTime.now();
+    // final now = DateTime.now();
     final List<DayModel> updatedDays = List.from(record.days);
 
     // Find today's index or return unchanged if today doesn't exist
@@ -226,7 +226,7 @@ class RecordServices {
       );
 
       return record.copyWith(
-        lastUpdate: now,
+        // lastUpdate: at,
         days: updatedDays,
       );
     }
@@ -237,7 +237,7 @@ class RecordServices {
   /// Ensures all days are properly closed/finalized
   //
   static Record sanitizeRecord(Record record) {
-    final now = DateTime.now();
+    // final now = DateTime.now();
     final List<DayModel> sanitizedDays = [];
 
     for (final day in record.days) {
@@ -245,7 +245,7 @@ class RecordServices {
     }
 
     return record.copyWith(
-      lastUpdate: now,
+      // lastUpdate: now,
       days: sanitizedDays,
     );
   }
@@ -291,8 +291,10 @@ class RecordServices {
         if (allDays.containsKey(dateKey)) {
           try {
             // Merge days for same date
-            allDays[dateKey] =
-                DayModelService.mergeDays(allDays[dateKey]!, day);
+            allDays[dateKey] = DayModelService.mergeDays(
+              allDays[dateKey]!,
+              day,
+            );
           } catch (e) {
             debugPrint('Error merging days: $e');
             // Keep the original day if merging fails
@@ -331,21 +333,24 @@ class RecordServices {
     buffer.writeln('Time Tracking Data Export');
     buffer.writeln('Generated: ${DateTime.now().toIso8601String()}');
     buffer.writeln(
-        'Total Accumulated Time (hours): ${record.totalAccumulatedTime.inMinutes / 60}');
+      'Total Accumulated Time (hours): ${record.totalAccumulatedTime.inMinutes / 60}',
+    );
     buffer.writeln();
 
     // Write days
     buffer.writeln(
-        'Date,Total Duration (minutes),Sessions Count,Most Active Period');
+      'Date,Total Duration (minutes),Sessions Count,Most Active Period',
+    );
 
     for (final day in record.days) {
       if (day.hasActivity) {
         final summary = DayModelService.createDaySummary(day);
         buffer.writeln(
-            '${day.dt.year}-${day.dt.month.toString().padLeft(2, '0')}-${day.dt.day.toString().padLeft(2, '0')},'
-            '${day.totalDuration.inMinutes},'
-            '${summary['sessionCount']},'
-            '${summary['mostActivePeriod']}');
+          '${day.dt.year}-${day.dt.month.toString().padLeft(2, '0')}-${day.dt.day.toString().padLeft(2, '0')},'
+          '${day.totalDuration.inMinutes},'
+          '${summary['sessionCount']},'
+          '${summary['mostActivePeriod']}',
+        );
       }
     }
 
@@ -400,9 +405,15 @@ class RecordServices {
         dbRecord = Record.fromJson(dbData);
       }
 
-      // If both exist, merge them
+      // If both exist, merge them.
+      // if (localRecord != null && dbRecord != null) {
+      //   return mergeRecords(localRecord, dbRecord);
+      // }
       if (localRecord != null && dbRecord != null) {
-        return mergeRecords(localRecord, dbRecord);
+        if (localRecord.lastUpdate.isAfter(dbRecord.lastUpdate)) {
+          return localRecord;
+        }
+        return dbRecord;
       }
 
       // Return whichever one exists

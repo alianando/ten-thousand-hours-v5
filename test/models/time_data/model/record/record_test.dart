@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ten_thousands_hours/models/time_data/model/day_model/day_model.dart';
 import 'package:ten_thousands_hours/models/time_data/model/day_model/day_services.dart';
@@ -23,8 +24,31 @@ void main() {
       expect(record.days.first.dt.millisecond, 0);
       expect(record.days.first.dt.microsecond, 0);
     });
-  });
 
+    test('add active time point', () {
+      final record = RecordServices.createEmptyRecord();
+      final now = DateTime.now();
+      final updatedRecord = RecordServices.addActiveEvent(record, now);
+      final pauseDt = now.add(const Duration(hours: 1));
+      final pausedRecord =
+          RecordServices.addActiveEvent(updatedRecord, pauseDt);
+
+      expect(updatedRecord.days.first.events.last.typ, TimePointTyp.resume);
+      expect(updatedRecord.isCurrentlyTracking, isTrue);
+
+      expect(pausedRecord.days.first.events.last.typ, TimePointTyp.pause);
+      expect(pausedRecord.isCurrentlyTracking, isFalse);
+      expect(pausedRecord.lastUpdate, pauseDt);
+
+      expect(pausedRecord.days.first.durPoint.dt, pauseDt);
+    });
+  
+  
+  
+  
+  
+  
+  });
   group('Record Class Tests', () {
     test('creates Record instance correctly', () {
       final now = DateTime.now();

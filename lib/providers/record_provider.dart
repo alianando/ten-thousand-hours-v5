@@ -32,6 +32,7 @@ class RecordNotifier extends Notifier<Record> {
 
       if (localData != null) {
         localRecord = Record.fromJsonString(localData);
+        state = localRecord;
         if (debug) {
           debugPrint(
             'Record loaded from local storage: ${localRecord.lastUpdate}',
@@ -41,26 +42,45 @@ class RecordNotifier extends Notifier<Record> {
 
       // Load from Supabase
       final supabaseRecord = await _loadFromSupabase(debug: debug);
-
-      if (localRecord != null && supabaseRecord != null) {
-        // Merge both records if we have both sources
-        final mergedRecord =
-            RecordServices.mergeRecords(localRecord, supabaseRecord);
-        state = mergedRecord;
-        if (debug) {
-          debugPrint(
-              'Records merged from local and Supabase: ${mergedRecord.lastUpdate}');
+      if (supabaseRecord != null) {
+        if (localRecord == null) {
+          state = supabaseRecord;
+          if (debug) {
+            debugPrint(
+                'Record loaded from Supabase: ${supabaseRecord.lastUpdate}');
+          }
+        } else {
+          if (supabaseRecord.lastUpdate.isAfter(localRecord.lastUpdate)) {
+            state = supabaseRecord;
+            if (debug) {
+              debugPrint(
+                  'Record loaded from Supabase: ${supabaseRecord.lastUpdate}');
+            }
+          }
         }
-      } else {
-        // Use whichever record is available
-        state = localRecord ?? supabaseRecord ?? state;
       }
+
+      // if (localRecord != null && supabaseRecord != null) {
+      //   // Merge both records if we have both sources
+      //   final mergedRecord = RecordServices.mergeRecords(
+      //     localRecord,
+      //     supabaseRecord,
+      //   );
+      //   state = mergedRecord;
+      //   if (debug) {
+      //     debugPrint(
+      //         'Records merged from local and Supabase: ${mergedRecord.lastUpdate}');
+      //   }
+      // } else {
+      //   // Use whichever record is available
+      //   state = localRecord ?? supabaseRecord ?? state;
+      // }
 
       // Always sanitize record on startup to ensure data integrity
       state = RecordServices.sanitizeRecord(state);
 
       // Save the record to ensure local and remote are synced
-      _saveRecord(state, debug: debug);
+      // _saveRecord(state, debug: debug);
     } catch (e) {
       debugPrint('Error initializing record: $e');
     }
@@ -91,7 +111,7 @@ class RecordNotifier extends Notifier<Record> {
       if (isNewDay) {
         if (debug) debugPrint('New day detected');
 
-        // Check if the previous day ended with an active session
+        // Check if the previous day ended with an active session.
         final wasActive = state.isCurrentlyTracking;
 
         // End previous day

@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ten_thousands_hours/providers/time_data_provider.dart';
+import 'package:ten_thousands_hours/providers/record_provider.dart';
 
 import '../main.dart';
 import '../providers/ticker_provider.dart';
@@ -40,7 +40,7 @@ class _TickerLayerState extends ConsumerState<TickerLayer> {
   @override
   Widget build(BuildContext context) {
     ref.listen(ticPro, (past, present) {
-      ref.read(timeDataProvider.notifier).handelTick();
+      ref.read(recordProvider.notifier).onTickUpdate(present);
     });
     return const MyApp();
   }
