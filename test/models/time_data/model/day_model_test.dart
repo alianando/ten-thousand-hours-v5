@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ten_thousands_hours/models/time_data/model/day_model/day_model.dart';
-import 'package:ten_thousands_hours/models/time_data/model/day_model/day_services.dart';
+import 'package:ten_thousands_hours/models/time_data/model/day_entry/day_model.dart';
+import 'package:ten_thousands_hours/models/time_data/model/day_entry/day_services.dart';
 import 'package:ten_thousands_hours/models/time_data/model/time_point/time_point.dart';
 
 void main() {
@@ -23,7 +23,7 @@ void main() {
         ];
 
         // Act
-        final day = DayModel(
+        final day = DayEntry(
           dt: dt,
           durPoint: durPoint,
           events: events,
@@ -44,7 +44,7 @@ void main() {
           typ: TimePointTyp.pause,
         );
         final events = [durPoint];
-        final day = DayModel(dt: dt, durPoint: durPoint, events: events);
+        final day = DayEntry(dt: dt, durPoint: durPoint, events: events);
 
         // Act
         final result = day.toString();
@@ -70,7 +70,7 @@ void main() {
             typ: TimePointTyp.pause,
           ),
         ];
-        final day = DayModel(dt: dt, durPoint: durPoint, events: events);
+        final day = DayEntry(dt: dt, durPoint: durPoint, events: events);
 
         // Act
         final json = day.toJson();
@@ -102,7 +102,7 @@ void main() {
         };
 
         // Act
-        final day = DayModel.fromJson(json);
+        final day = DayEntry.fromJson(json);
 
         // Assert
         expect(day.dt.year, 2025);
@@ -129,7 +129,7 @@ void main() {
         };
 
         // Act
-        final day = DayModel.fromJson(json);
+        final day = DayEntry.fromJson(json);
 
         // Assert
         expect(day.durPoint, isNotNull);
@@ -150,7 +150,7 @@ void main() {
         };
 
         // Act
-        final day = DayModel.fromJson(json);
+        final day = DayEntry.fromJson(json);
 
         // Assert
         expect(day.events.length, 1); // Should use durPoint as the only event
@@ -176,7 +176,7 @@ void main() {
         };
 
         // Act
-        final day = DayModel.fromJson(json);
+        final day = DayEntry.fromJson(json);
 
         // Assert
         expect(day.dt, dt); // Should use durPoint.dt
@@ -193,7 +193,7 @@ void main() {
           typ: TimePointTyp.pause,
         );
         final events = [durPoint];
-        final day = DayModel(dt: dt, durPoint: durPoint, events: events);
+        final day = DayEntry(dt: dt, durPoint: durPoint, events: events);
 
         final newDt = DateTime(2025, 3, 6);
         final newDurPoint = TimePoint(
@@ -223,7 +223,7 @@ void main() {
           typ: TimePointTyp.pause,
         );
         final events = [durPoint];
-        final day = DayModel(dt: dt, durPoint: durPoint, events: events);
+        final day = DayEntry(dt: dt, durPoint: durPoint, events: events);
 
         // Act
         final copied = day.copyWith();

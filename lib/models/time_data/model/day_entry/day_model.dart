@@ -1,13 +1,12 @@
 import '../time_point/time_point.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 
-class DayModel {
+class DayEntry {
   final DateTime dt;
   final TimePoint durPoint;
   final List<TimePoint> events;
 
-  const DayModel({
+  const DayEntry({
     required this.dt,
     required this.durPoint,
     required this.events,
@@ -16,8 +15,8 @@ class DayModel {
   // ADDED: Computed properties for convenience
   Duration get totalDuration => durPoint.dur;
   bool get hasActivity => totalDuration.inSeconds > 0;
-  DateTime get dayStart => DateTime(dt.year, dt.month, dt.day);
-  DateTime get dayEnd => DateTime(dt.year, dt.month, dt.day, 23, 59, 59, 999);
+  DateTime get dayStart => DtHelper.dayStartDt(dt);
+  DateTime get dayEnd => DtHelper.dayEndDt(dt);
   bool get isToday => _isSameDay(dt, DateTime.now());
 
   // ADDED: Session extraction
@@ -46,7 +45,7 @@ class DayModel {
     };
   }
 
-  factory DayModel.fromJson(Map<String, dynamic> json) {
+  factory DayEntry.fromJson(Map<String, dynamic> json) {
     final durPoint = json['durPoint'] != null
         ? TimePoint.fromJson(json['durPoint'])
         : TimePoint(
@@ -54,7 +53,7 @@ class DayModel {
             dur: const Duration(),
             typ: TimePointTyp.pause);
 
-    return DayModel(
+    return DayEntry(
       dt: json['lastUpdate'] != null
           ? DateTime.parse(json['lastUpdate'])
           : durPoint.dt,
@@ -68,12 +67,12 @@ class DayModel {
   }
 
   // IMPROVED: More comprehensive copyWith
-  DayModel copyWith({
+  DayEntry copyWith({
     DateTime? dt,
     TimePoint? durPoint,
     List<TimePoint>? events,
   }) {
-    return DayModel(
+    return DayEntry(
       dt: dt ?? this.dt,
       durPoint: durPoint ?? this.durPoint,
       events: events != null
@@ -90,7 +89,7 @@ class DayModel {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is DayModel &&
+    return other is DayEntry &&
         _isSameDay(other.dt, dt) &&
         other.durPoint == durPoint &&
         listEquals(other.events, events);
@@ -160,18 +159,18 @@ class DayModel {
   // Helper methods for DayModelService
 
   /// Creates an empty day for a specific date
-  static DayModel createEmptyDay(DateTime date) {
+  static DayEntry createEmptyDay(DateTime date) {
     final dayStart = DateTime(date.year, date.month, date.day);
     final emptyPoint = TimePoint(
       dt: dayStart,
       dur: Duration.zero,
       typ: TimePointTyp.pause,
     );
-    return DayModel(dt: dayStart, durPoint: emptyPoint, events: [emptyPoint]);
+    return DayEntry(dt: dayStart, durPoint: emptyPoint, events: [emptyPoint]);
   }
 
   /// Merges two days that represent the same calendar day
-  static DayModel mergeDays(DayModel day1, DayModel day2) {
+  static DayEntry mergeDays(DayEntry day1, DayEntry day2) {
     if (!_isSameDay(day1.dt, day2.dt)) {
       throw ArgumentError('Cannot merge days from different dates');
     }
@@ -197,7 +196,7 @@ class DayModel {
     final latestPoint = uniqueEvents.reduce(
         (value, element) => value.dt.isAfter(element.dt) ? value : element);
 
-    return DayModel(
+    return DayEntry(
       dt: day1.dt,
       durPoint: latestPoint,
       events: uniqueEvents,
@@ -206,7 +205,7 @@ class DayModel {
 
   /// Extracts activities into meaningful sessions
   static List<(DateTime start, DateTime end, Duration duration, String label)>
-      extractNamedSessions(DayModel day) {
+      extractNamedSessions(DayEntry day) {
     const minSessionDuration = Duration(minutes: 5);
     const breakThreshold = Duration(minutes: 15);
 
@@ -286,7 +285,7 @@ class DayModel {
   }
 
   // Sorting comparison for days
-  int compareTo(DayModel other) {
+  int compareTo(DayEntry other) {
     return dt.compareTo(other.dt);
   }
 
@@ -310,7 +309,7 @@ class DayModel {
   }
 
   /// Creates an instance from CSV data
-  factory DayModel.fromCSV(String csv) {
+  factory DayEntry.fromCSV(String csv) {
     final lines = csv.split('\n');
     if (lines.length < 5) {
       throw const FormatException('Invalid CSV format');
@@ -347,7 +346,7 @@ class DayModel {
     }
 
     events.sort((a, b) => a.dt.compareTo(b.dt));
-    return DayModel(
+    return DayEntry(
       dt: dt,
       durPoint: events.last,
       events: events,
@@ -381,7 +380,7 @@ class DayModel {
   }
 
   /// Creates a corrected version of this day model
-  DayModel corrected() {
+  DayEntry corrected() {
     // Sort events by datetime
     final sortedEvents = List<TimePoint>.from(events)
       ..sort((a, b) => a.dt.compareTo(b.dt));
@@ -401,7 +400,7 @@ class DayModel {
     // Choose the latest event as durPoint
     TimePoint latestPoint = filteredEvents.last;
 
-    return DayModel(
+    return DayEntry(
       dt: DateTime(dt.year, dt.month, dt.day),
       durPoint: latestPoint,
       events: filteredEvents,

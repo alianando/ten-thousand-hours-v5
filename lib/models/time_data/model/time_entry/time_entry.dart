@@ -1,18 +1,18 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import '../day_model/day_model.dart';
-import '../day_model/day_services.dart';
+import '../day_entry/day_model.dart';
+import '../day_entry/day_services.dart';
 import '../time_point/time_point.dart';
 
 /// Record holds a collection of DayModels and manages persistence to/from storage
-class Record {
+class TimeEntry {
   /// The date when this record was last updated
   final DateTime lastUpdate;
 
   /// Collection of day models containing all tracking data
-  final List<DayModel> days;
+  final List<DayEntry> days;
 
-  const Record({
+  const TimeEntry({
     required this.lastUpdate,
     required this.days,
   });
@@ -22,7 +22,7 @@ class Record {
       days.fold(Duration.zero, (sum, day) => sum + day.totalDuration);
 
   /// Get the day model for today
-  DayModel? get today {
+  DayEntry? get today {
     final now = DateTime.now();
     final todayDate = DateTime(now.year, now.month, now.day);
 
@@ -45,7 +45,7 @@ class Record {
   }
 
   /// Days with activity in the past week
-  List<DayModel> get recentActiveDays {
+  List<DayEntry> get recentActiveDays {
     final now = DateTime.now();
     final weekAgo = now.subtract(const Duration(days: 7));
 
@@ -69,23 +69,23 @@ class Record {
   }
 
   /// Create a new instance with optional field updates
-  Record copyWith({
+  TimeEntry copyWith({
     DateTime? lastUpdate,
-    List<DayModel>? days,
+    List<DayEntry>? days,
   }) {
-    return Record(
+    return TimeEntry(
       lastUpdate: lastUpdate ?? this.lastUpdate,
-      days: days ?? List<DayModel>.from(this.days),
+      days: days ?? List<DayEntry>.from(this.days),
     );
   }
 
   /// Create a Record from JSON map with robust error handling
-  factory Record.fromJson(Map<String, dynamic> json) {
+  factory TimeEntry.fromJson(Map<String, dynamic> json) {
     try {
       final lastUpdateStr = json['lastUpdate'];
       if (lastUpdateStr == null) {
-        return Record(
-          lastUpdate: DateTime.now(),
+        return TimeEntry(
+          lastUpdate: DateTime(1999, 3, 3),
           days: [],
         );
       }
@@ -94,48 +94,48 @@ class Record {
       try {
         parsedUpdate = DateTime.parse(lastUpdateStr);
       } catch (_) {
-        parsedUpdate = DateTime.now();
+        parsedUpdate = DateTime(1999, 3, 3);
       }
 
       final daysList = json['days'];
       if (daysList == null || daysList is! List) {
-        return Record(
+        return TimeEntry(
           lastUpdate: parsedUpdate,
           days: [],
         );
       }
 
-      final parsedDays = <DayModel>[];
+      final parsedDays = <DayEntry>[];
       for (final dayJson in daysList) {
         try {
-          parsedDays.add(DayModel.fromJson(dayJson));
+          parsedDays.add(DayEntry.fromJson(dayJson));
         } catch (e) {
           debugPrint('Error parsing day: $e');
           // Skip invalid days
         }
       }
 
-      return Record(
+      return TimeEntry(
         lastUpdate: parsedUpdate,
         days: parsedDays,
       );
     } catch (e) {
       debugPrint('Error creating Record from JSON: $e');
-      return Record(
-        lastUpdate: DateTime.now(),
+      return TimeEntry(
+        lastUpdate: DateTime(1999, 3, 3),
         days: [],
       );
     }
   }
 
   /// Create a Record from JSON string with error handling
-  factory Record.fromJsonString(String jsonString) {
+  factory TimeEntry.fromJsonString(String jsonString) {
     try {
       final decoded = jsonDecode(jsonString);
-      return Record.fromJson(decoded);
+      return TimeEntry.fromJson(decoded);
     } catch (e) {
       debugPrint('Error parsing JSON string: $e');
-      return Record(
+      return TimeEntry(
         lastUpdate: DateTime.now(),
         days: [],
       );
@@ -150,16 +150,16 @@ class Record {
 }
 
 /// Service class for Record operations
-class RecordServices {
-  const RecordServices._();
+class TimeEntryService {
+  const TimeEntryService._();
 
   /// Creates a new empty record with a single day (today)
   //
-  static Record createEmptyRecord() {
+  static TimeEntry createEmptyRecord() {
     final now = DateTime.now();
     final today = DayModelService.createNewDay(now);
 
-    return Record(
+    return TimeEntry(
       lastUpdate: today.dt,
       days: [today],
     );
@@ -167,9 +167,9 @@ class RecordServices {
 
   /// Adds a new time point event (toggle between pause/resume)
   //
-  static Record addActiveEvent(Record record, DateTime at) {
+  static TimeEntry addActiveEvent(TimeEntry record, DateTime at) {
     // final now = DateTime.now();
-    final List<DayModel> updatedDays = List.from(record.days);
+    final List<DayEntry> updatedDays = List.from(record.days);
 
     // Find today's index or create today if it doesn't exist
     final todayDate = DateTime(at.year, at.month, at.day);
@@ -202,13 +202,13 @@ class RecordServices {
 
   /// Updates duration without adding a toggle point (for real-time updates).
   //
-  static Record updateDuration(
-    Record record,
+  static TimeEntry updateDuration(
+    TimeEntry record,
     DateTime at, {
     bool debug = false,
   }) {
     // final now = DateTime.now();
-    final List<DayModel> updatedDays = List.from(record.days);
+    final List<DayEntry> updatedDays = List.from(record.days);
 
     // Find today's index or return unchanged if today doesn't exist
     final todayDate = DateTime(at.year, at.month, at.day);
@@ -236,9 +236,9 @@ class RecordServices {
 
   /// Ensures all days are properly closed/finalized
   //
-  static Record sanitizeRecord(Record record) {
+  static TimeEntry sanitizeRecord(TimeEntry record) {
     // final now = DateTime.now();
-    final List<DayModel> sanitizedDays = [];
+    final List<DayEntry> sanitizedDays = [];
 
     for (final day in record.days) {
       sanitizedDays.add(DayModelService.sanitize(day));
@@ -252,8 +252,8 @@ class RecordServices {
 
   /// Finalizes a day by adding an end-of-day timepoint
   //
-  static Record endDay(Record record, DateTime date) {
-    final List<DayModel> updatedDays = List.from(record.days);
+  static TimeEntry endDay(TimeEntry record, DateTime date) {
+    final List<DayEntry> updatedDays = List.from(record.days);
 
     // Find the day's index
     final dateOnly = DateTime(date.year, date.month, date.day);
@@ -274,9 +274,9 @@ class RecordServices {
 
   /// Merges two records, keeping the most complete data
   //
-  static Record mergeRecords(Record record1, Record record2) {
+  static TimeEntry mergeRecords(TimeEntry record1, TimeEntry record2) {
     try {
-      final allDays = <DateTime, DayModel>{};
+      final allDays = <DateTime, DayEntry>{};
 
       // Process all days from record1
       for (final day in record1.days) {
@@ -313,7 +313,7 @@ class RecordServices {
       final sortedDays = allDays.values.toList()
         ..sort((a, b) => a.dt.compareTo(b.dt));
 
-      return Record(
+      return TimeEntry(
         lastUpdate: lastUpdate,
         days: sortedDays,
       );
@@ -326,7 +326,7 @@ class RecordServices {
 
   /// Exports record to CSV format
   //
-  static String exportToCsv(Record record) {
+  static String exportToCsv(TimeEntry record) {
     final buffer = StringBuffer();
 
     // Write header
@@ -360,7 +360,7 @@ class RecordServices {
   /// Saves record to storage and DB
   //
   static Future<bool> saveRecord(
-    Record record,
+    TimeEntry record,
     Future<void> Function(String) saveToStorage,
     Future<void> Function(Map<String, dynamic>) saveToDatabase,
   ) async {
@@ -384,25 +384,25 @@ class RecordServices {
 
   /// Loads record from storage
   //
-  static Future<Record?> loadRecord(
+  static Future<TimeEntry?> loadRecord(
     Future<String?> Function() loadFromStorage,
     Future<Map<String, dynamic>?> Function() loadFromDatabase,
   ) async {
     try {
       // Try loading from local storage first
       final localData = await loadFromStorage();
-      Record? localRecord;
+      TimeEntry? localRecord;
 
       if (localData != null) {
-        localRecord = Record.fromJsonString(localData);
+        localRecord = TimeEntry.fromJsonString(localData);
       }
 
       // Try loading from database
       final dbData = await loadFromDatabase();
-      Record? dbRecord;
+      TimeEntry? dbRecord;
 
       if (dbData != null) {
-        dbRecord = Record.fromJson(dbData);
+        dbRecord = TimeEntry.fromJson(dbData);
       }
 
       // If both exist, merge them.

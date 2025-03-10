@@ -10,7 +10,7 @@ class DayModelService {
 
   /// Creates a new day model for the specified datetime
   /// If the time is not midnight, adds both midnight and specified time points
-  static DayModel createNewDay(DateTime at) {
+  static DayEntry createNewDay(DateTime at) {
     final dayDt = DtHelper.dayStartDt(at);
 
     // Create events list with appropriate starting points
@@ -33,7 +33,7 @@ class DayModelService {
     //   typ: TimePointTyp.pause,
     // ));
 
-    return DayModel(
+    return DayEntry(
       dt: dayDt,
       durPoint: events.last,
       events: events,
@@ -42,7 +42,7 @@ class DayModelService {
 
   /// Finalizes a day by adding an end-of-day timepoint
   /// Useful for completed days or when crossing to a new day
-  static DayModel endDay(DayModel day) {
+  static DayEntry endDay(DayEntry day) {
     final events = List<TimePoint>.from(day.events);
     final dayEndDt = DtHelper.dayEndDt(day.dt);
 
@@ -58,7 +58,7 @@ class DayModelService {
 
     events.add(last);
 
-    return DayModel(
+    return DayEntry(
       dt: DtHelper.dayStartDt(day.dt),
       durPoint: last,
       events: events,
@@ -67,8 +67,8 @@ class DayModelService {
 
   /// Adds a new active event to the day (toggles between pause/resume)
   /// Only works if the event is on the same day
-  static DayModel addActiveEvent({
-    required DayModel day,
+  static DayEntry addActiveEvent({
+    required DayEntry day,
     required DateTime dtAt,
   }) {
     // Ensure event is for the same day
@@ -86,8 +86,8 @@ class DayModelService {
 
   /// Updates the duration at a specific time without creating a new event
   /// Used for progress updates during active tracking
-  static DayModel unactiveDtUpdate({
-    required DayModel day,
+  static DayEntry unactiveDtUpdate({
+    required DayEntry day,
     required DateTime dtAt,
   }) {
     // Ensure update is for the same day
@@ -104,7 +104,7 @@ class DayModelService {
 
   /// Generates coordinates for visualization based on session times
   static List<Offset> updateCoordinates({
-    required DayModel day,
+    required DayEntry day,
     required DateTime timeAt,
     required DateTime sessionStartDt,
     required DateTime sessionEndDt,
@@ -139,7 +139,7 @@ class DayModelService {
 
   /// ADDED: Merges two days that represent the same calendar day
   /// Useful when syncing data from different sources
-  static DayModel mergeDays(DayModel day1, DayModel day2) {
+  static DayEntry mergeDays(DayEntry day1, DayEntry day2) {
     // Verify days are the same calendar day
     if (!_isSameDay(day1.dt, day2.dt)) {
       throw ArgumentError('Cannot merge days from different dates');
@@ -170,7 +170,7 @@ class DayModelService {
     //     ? day1.coordinates
     //     : day2.coordinates;
 
-    return DayModel(
+    return DayEntry(
       dt: day1.dt,
       durPoint: latestPoint,
       events: uniqueEvents,
@@ -179,7 +179,7 @@ class DayModelService {
   }
 
   /// ADDED: Analyzes events to find productive sessions and patterns
-  static Map<String, dynamic> analyzeDay(DayModel day) {
+  static Map<String, dynamic> analyzeDay(DayEntry day) {
     if (day.events.isEmpty) {
       return {
         'totalDuration': Duration.zero,
@@ -289,13 +289,15 @@ class DayModelService {
   }
 
   /// ADDED: Creates a corrected version of a day with consistent data
-  static DayModel sanitize(DayModel day) {
+  static DayEntry sanitize(DayEntry day) {
     // Ensure day starts at midnight
     final date = DateTime(day.dt.year, day.dt.month, day.dt.day);
 
     // Sort events by time
-    final sortedEvents = List<TimePoint>.from(day.events)
-      ..sort((a, b) => a.dt.compareTo(b.dt));
+    List<TimePoint> sortedEvents = List<TimePoint>.from(day.events);
+    if (sortedEvents.length > 1) {
+      sortedEvents = sortedEvents..sort((a, b) => a.dt.compareTo(b.dt));
+    }
 
     // Filter out events not on this day
     final filteredEvents =
@@ -307,17 +309,33 @@ class DayModelService {
     }
 
     // Ensure day has start and end points
-    final hasStartOfDay =
-        filteredEvents.any((e) => e.dt.hour == 0 && e.dt.minute == 0);
+    final hasStartOfDay = filteredEvents.any(
+      (e) => e.dt.hour == 0 && e.dt.minute == 0,
+    );
 
     if (!hasStartOfDay) {
       filteredEvents.insert(
-          0,
-          TimePoint(
-            dt: date,
-            dur: Duration.zero,
-            typ: TimePointTyp.pause,
-          ));
+        0,
+        TimePoint(
+          dt: date,
+          dur: Duration.zero,
+          typ: TimePointTyp.pause,
+        ),
+      );
+    }
+    final hasDayEnd = filteredEvents.any(
+      (e) => e.dt.isAtSameMomentAs(DtHelper.dayEndDt(date)),
+    );
+    final today = DtHelper.dayStartDt(DateTime.now());
+    final isToday = date.isAtSameMomentAs(today);
+    if (!isToday && !hasDayEnd) {
+      filteredEvents.add(
+        TimePoint(
+          dt: DtHelper.dayEndDt(date),
+          dur: Duration.zero,
+          typ: TimePointTyp.pause,
+        ),
+      );
     }
 
     // Update durations for consistency
@@ -349,7 +367,7 @@ class DayModelService {
       prev = correctedEvents.last;
     }
 
-    return DayModel(
+    return DayEntry(
       dt: date,
       durPoint: correctedEvents.last,
       events: correctedEvents,
@@ -377,7 +395,7 @@ class DayModelService {
   }
 
   /// Identifies and categorizes work patterns based on time of day
-  static Map<String, dynamic> analyzeWorkPatterns(DayModel day) {
+  static Map<String, dynamic> analyzeWorkPatterns(DayEntry day) {
     if (!day.hasActivity) {
       return {
         'pattern': 'No Activity',
@@ -478,7 +496,7 @@ class DayModelService {
   }
 
   /// Calculates productivity metrics based on session frequency and length
-  static Map<String, dynamic> calculateProductivityMetrics(DayModel day) {
+  static Map<String, dynamic> calculateProductivityMetrics(DayEntry day) {
     if (!day.hasActivity) {
       return {
         'productivityScore': 0.0,
@@ -577,7 +595,7 @@ class DayModelService {
   }
 
   /// Detects potential tracking errors or anomalies in the data
-  static List<Map<String, dynamic>> detectDataAnomalies(DayModel day) {
+  static List<Map<String, dynamic>> detectDataAnomalies(DayEntry day) {
     final anomalies = <Map<String, dynamic>>[];
     final events = day.events;
 
@@ -650,7 +668,7 @@ class DayModelService {
   }
 
   /// Creates a condensed summary of a day suitable for display
-  static Map<String, dynamic> createDaySummary(DayModel day) {
+  static Map<String, dynamic> createDaySummary(DayEntry day) {
     final sessions = day.sessions;
     final totalDur = day.totalDuration;
 
@@ -748,7 +766,7 @@ class DayModelService {
   }
 
   /// Calculate progress towards goal for a specific day
-  static double calculateGoalProgress(DayModel day, Duration dailyGoal) {
+  static double calculateGoalProgress(DayEntry day, Duration dailyGoal) {
     if (dailyGoal.inSeconds == 0) return 0.0;
     return day.totalDuration.inSeconds / dailyGoal.inSeconds;
   }
@@ -756,7 +774,7 @@ class DayModelService {
   /// Extract tags or categories from day data
   /// This is a placeholder - in a full implementation, you'd need to
   /// have tags associated with time entries
-  static List<String> extractTags(DayModel day) {
+  static List<String> extractTags(DayEntry day) {
     // This is where you'd implement tag extraction based on your data model
     // For now, we'll return placeholder data
 
@@ -796,7 +814,7 @@ class DayModelService {
   }
 
   /// Compare two days and return the differences
-  static Map<String, dynamic> compareDays(DayModel day1, DayModel day2) {
+  static Map<String, dynamic> compareDays(DayEntry day1, DayEntry day2) {
     final day1Duration = day1.totalDuration;
     final day2Duration = day2.totalDuration;
 
@@ -828,7 +846,7 @@ class DayModelService {
   }
 
   /// Analyzes multiple days to find optimal work patterns
-  static Map<String, dynamic> analyzeOptimalWorkPatterns(List<DayModel> days) {
+  static Map<String, dynamic> analyzeOptimalWorkPatterns(List<DayEntry> days) {
     // Filter to days with significant activity (more than 30 minutes)
     final activeDays =
         days.where((day) => day.totalDuration.inMinutes > 30).toList();
@@ -990,7 +1008,7 @@ class DayModelService {
 
   /// Forecasts expected progress based on historical data
   static Map<String, dynamic> forecastProgress(
-      List<DayModel> historicalDays, int forecastDays, Duration targetHours) {
+      List<DayEntry> historicalDays, int forecastDays, Duration targetHours) {
     if (historicalDays.isEmpty) {
       return {
         'projectedCompletionDate': null,
@@ -1001,7 +1019,7 @@ class DayModelService {
     }
 
     // Sort days by date
-    final sortedDays = List<DayModel>.from(historicalDays)
+    final sortedDays = List<DayEntry>.from(historicalDays)
       ..sort((a, b) => a.dt.compareTo(b.dt));
 
     // Calculate average daily duration over the last 7 days or available days
@@ -1096,7 +1114,7 @@ class DayModelService {
   }
 
   /// Segments the day into focused work blocks (pomodoro-style analysis)
-  static List<Map<String, dynamic>> identifyWorkBlocks(DayModel day) {
+  static List<Map<String, dynamic>> identifyWorkBlocks(DayEntry day) {
     final workBlocks = <Map<String, dynamic>>[];
     final sessions = day.sessions;
 
@@ -1209,7 +1227,7 @@ class DayModelService {
   }
 
   /// Provides streak-based gamification metrics
-  static Map<String, dynamic> calculateStreaks(List<DayModel> allDays) {
+  static Map<String, dynamic> calculateStreaks(List<DayEntry> allDays) {
     if (allDays.isEmpty) {
       return {
         'currentStreak': 0,
@@ -1220,7 +1238,7 @@ class DayModelService {
     }
 
     // Sort days chronologically
-    final sortedDays = List<DayModel>.from(allDays)
+    final sortedDays = List<DayEntry>.from(allDays)
       ..sort((a, b) => a.dt.compareTo(b.dt));
 
     // Find days with meaningful activity (more than 10 minutes)
@@ -1286,7 +1304,7 @@ class DayModelService {
   }
 
   /// Categorize sessions by length to identify patterns
-  static Map<String, dynamic> analyzeSessionDistribution(DayModel day) {
+  static Map<String, dynamic> analyzeSessionDistribution(DayEntry day) {
     final sessions = day.sessions;
     if (sessions.isEmpty) {
       return {
@@ -1364,7 +1382,7 @@ class DayModelService {
   }
 
   /// Export day data to various formats
-  static String exportToCsv(DayModel day) {
+  static String exportToCsv(DayEntry day) {
     final buffer = StringBuffer();
 
     // Write header
@@ -1404,7 +1422,7 @@ class DayModelService {
   }
 
   /// Calculate time spent per hour of day (useful for heatmaps)
-  static Map<int, Duration> calculateHourlyDistribution(DayModel day) {
+  static Map<int, Duration> calculateHourlyDistribution(DayEntry day) {
     final hourlyDistribution = <int, Duration>{};
 
     for (int hour = 0; hour < 24; hour++) {

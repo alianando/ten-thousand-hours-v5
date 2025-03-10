@@ -1,22 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:ten_thousands_hours/models/time_data/model/day_model/day_model.dart';
-import 'package:ten_thousands_hours/models/time_data/model/day_model/day_services.dart';
-import 'package:ten_thousands_hours/models/time_data/model/record/record.dart';
+import 'package:ten_thousands_hours/models/time_data/model/day_entry/day_model.dart';
+import 'package:ten_thousands_hours/models/time_data/model/day_entry/day_services.dart';
+import 'package:ten_thousands_hours/models/time_data/model/time_entry/time_entry.dart';
 import 'package:ten_thousands_hours/providers/storage_pro.dart';
+import 'package:ten_thousands_hours/root/root.dart';
 
 /// Provider for the Record
-final recordProvider = NotifierProvider<RecordNotifier, Record>(
-  RecordNotifier.new,
+final timeEntryProvider = NotifierProvider<TimeEntryNot, TimeEntry>(
+  TimeEntryNot.new,
 );
 
 /// Notifier class that manages state for the Record
-class RecordNotifier extends Notifier<Record> {
+class TimeEntryNot extends Notifier<TimeEntry> {
   /// Initialize with empty record
   @override
-  Record build() {
-    return RecordServices.createEmptyRecord();
+  TimeEntry build() {
+    return TimeEntryService.createEmptyRecord();
   }
 
   /// Database key for saving/retrieving record
@@ -24,37 +25,44 @@ class RecordNotifier extends Notifier<Record> {
 
   /// Initialize the record by loading from local storage and Supabase
   /// Merges both sources to ensure we have the most complete data
-  Future<void> init({bool debug = false}) async {
+  Future<void> init({bool debug = true}) async {
     try {
       // Load from local storage
-      final localData = ref.read(storageProvider).getString(_recordKey);
-      Record? localRecord;
+      // final localData = ref.read(storageProvider).getString(_recordKey);
+      const localData = null;
+      TimeEntry? localRecord;
 
       if (localData != null) {
-        localRecord = Record.fromJsonString(localData);
+        localRecord = TimeEntry.fromJsonString(localData);
         state = localRecord;
         if (debug) {
+          // debugPrint(localRecord.runtimeType.toString());
+
           debugPrint(
-            'Record loaded from local storage: ${localRecord.lastUpdate}',
+            'Loaded from local storage: ${localRecord.lastUpdate}',
           );
+          // debugPrint('Loaded from local storage: ${localRecord.days}');
         }
       }
+      // debugPrint(localRecord == null ? 'null' : 'not null');
 
       // Load from Supabase
       final supabaseRecord = await _loadFromSupabase(debug: debug);
       if (supabaseRecord != null) {
-        if (localRecord == null) {
+        if (localData == null) {
           state = supabaseRecord;
           if (debug) {
             debugPrint(
-                'Record loaded from Supabase: ${supabaseRecord.lastUpdate}');
+              'Supabase alone: ${supabaseRecord.lastUpdate}',
+            );
           }
         } else {
-          if (supabaseRecord.lastUpdate.isAfter(localRecord.lastUpdate)) {
+          if (supabaseRecord.lastUpdate.isAfter(localRecord!.lastUpdate)) {
             state = supabaseRecord;
             if (debug) {
               debugPrint(
-                  'Record loaded from Supabase: ${supabaseRecord.lastUpdate}');
+                'Supabase is more updated: ${supabaseRecord.lastUpdate}',
+              );
             }
           }
         }
@@ -77,7 +85,7 @@ class RecordNotifier extends Notifier<Record> {
       // }
 
       // Always sanitize record on startup to ensure data integrity
-      state = RecordServices.sanitizeRecord(state);
+      state = TimeEntryService.sanitizeRecord(state.copyWith());
 
       // Save the record to ensure local and remote are synced
       // _saveRecord(state, debug: debug);
@@ -115,26 +123,30 @@ class RecordNotifier extends Notifier<Record> {
         final wasActive = state.isCurrentlyTracking;
 
         // End previous day
-        Record updatedRecord = RecordServices.endDay(state, lastUpdateDate);
+        TimeEntry updatedRecord = TimeEntryService.endDay(
+          state,
+          lastUpdateDate,
+        );
 
         // Create new day for today
-        DayModel newDay = DayModelService.createNewDay(currentDate);
+        DayEntry newDay = DayModelService.createNewDay(currentDate);
 
+        // don't continue the event.
         // If we were actively tracking, add a resume point to continue
-        if (wasActive) {
-          if (debug) debugPrint('Continuing active session to new day');
-          newDay = DayModelService.addActiveEvent(
-            day: newDay,
-            dtAt: DateTime(
-              currentDate.year,
-              currentDate.month,
-              currentDate.day,
-            ),
-          );
-        }
+        // if (wasActive) {
+        //   if (debug) debugPrint('Continuing active session to new day');
+        //   newDay = DayModelService.addActiveEvent(
+        //     day: newDay,
+        //     dtAt: DateTime(
+        //       currentDate.year,
+        //       currentDate.month,
+        //       currentDate.day,
+        //     ),
+        //   );
+        // }
 
         // Add the new day to our record
-        final updatedDays = List<DayModel>.from(updatedRecord.days)
+        final updatedDays = List<DayEntry>.from(updatedRecord.days)
           ..add(newDay);
         updatedDays.sort((a, b) => a.dt.compareTo(b.dt));
 
@@ -148,7 +160,7 @@ class RecordNotifier extends Notifier<Record> {
       } else {
         // Same day, just update durations if actively tracking
         if (state.isCurrentlyTracking) {
-          final updatedRecord = RecordServices.updateDuration(state, now);
+          final updatedRecord = TimeEntryService.updateDuration(state, now);
           state = updatedRecord;
 
           // Only save every minute to avoid excessive writes
@@ -165,7 +177,7 @@ class RecordNotifier extends Notifier<Record> {
   /// Add a new time point (toggles between pause and resume)
   void addActiveEvent(DateTime at, {bool debug = false}) {
     try {
-      final updatedRecord = RecordServices.addActiveEvent(state, at);
+      final updatedRecord = TimeEntryService.addActiveEvent(state, at);
       state = updatedRecord;
       _saveRecord(updatedRecord, debug: debug);
 
@@ -181,17 +193,19 @@ class RecordNotifier extends Notifier<Record> {
   }
 
   /// Load record data from Supabase
-  Future<Record?> _loadFromSupabase({bool debug = false}) async {
+  Future<TimeEntry?> _loadFromSupabase({bool debug = false}) async {
     try {
       if (debug) {
         debugPrint('Fetching record from Supabase');
       }
 
       final response = await Supabase.instance.client
-          .from('time_records')
+          .from('time_data_db')
           .select()
-          .eq('user_id',
-              Supabase.instance.client.auth.currentUser?.id ?? 'anonymous')
+          // .eq('user_id',
+          //     Supabase.instance.client.auth.currentUser?.id ?? 'anonymous')
+          // .eq('email', 'alianando44@gmail.com')
+          .eq('id', 1)
           .single();
 
       final recordData = response['record_data'];
@@ -200,9 +214,9 @@ class RecordNotifier extends Notifier<Record> {
         return null;
       }
 
-      final record = Record.fromJson(recordData);
+      final record = TimeEntry.fromJson(recordData);
       if (debug) {
-        debugPrint('Record loaded from Supabase: ${record.lastUpdate}');
+        debugPrint('Supabase: ${record.lastUpdate}');
       }
       return record;
     } catch (e) {
@@ -214,7 +228,7 @@ class RecordNotifier extends Notifier<Record> {
   }
 
   /// Save record to both local storage and Supabase
-  Future<void> _saveRecord(Record record, {bool debug = false}) async {
+  Future<void> _saveRecord(TimeEntry record, {bool debug = false}) async {
     try {
       // Save to local storage
       final jsonString = record.toJsonString();
@@ -223,12 +237,14 @@ class RecordNotifier extends Notifier<Record> {
 
       // Save to Supabase
       try {
-        await Supabase.instance.client.from('time_records').upsert({
-          'user_id':
-              Supabase.instance.client.auth.currentUser?.id ?? 'anonymous',
+        // await Supabase.instance.client.from('time_data_db').upsert({
+        //   'record_data': record.toJson(),
+        //   'updated_at': DateTime.now().toIso8601String(),
+        // }).eq('id', 1);
+        await Supabase.instance.client.from('time_data_db').update({
           'record_data': record.toJson(),
           'updated_at': DateTime.now().toIso8601String(),
-        });
+        }).eq('id', 1);
         if (debug) debugPrint('Record saved to Supabase');
       } catch (e) {
         debugPrint('Error saving to Supabase: $e');
@@ -240,12 +256,12 @@ class RecordNotifier extends Notifier<Record> {
 
   /// Export record data to CSV format
   String exportToCsv() {
-    return RecordServices.exportToCsv(state);
+    return TimeEntryService.exportToCsv(state);
   }
 
   /// Clear all data and reset to a new empty record
   void resetData({bool debug = false}) {
-    final newRecord = RecordServices.createEmptyRecord();
+    final newRecord = TimeEntryService.createEmptyRecord();
     state = newRecord;
     _saveRecord(newRecord, debug: debug);
     if (debug) debugPrint('Record reset to empty state');
@@ -255,7 +271,7 @@ class RecordNotifier extends Notifier<Record> {
   /// Useful for testing or correcting data
   void addTimePointAt(DateTime at, {bool debug = false}) {
     try {
-      final updatedRecord = RecordServices.addActiveEvent(state, at);
+      final updatedRecord = TimeEntryService.addActiveEvent(state, at);
       state = updatedRecord;
       _saveRecord(updatedRecord, debug: debug);
       if (debug) debugPrint('Manually added time point at $at');
@@ -313,5 +329,9 @@ class RecordNotifier extends Notifier<Record> {
       'activeDaysCount': activeDays.length,
       'currentStreak': currentStreak,
     };
+  }
+
+  void updateEntry(TimeEntry entry) {
+    state = entry;
   }
 }

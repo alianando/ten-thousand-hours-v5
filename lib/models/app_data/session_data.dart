@@ -44,6 +44,18 @@ class SessionData {
       sessionEndDt: sessionEndDt ?? this.sessionEndDt,
     );
   }
+
+  /// Creates default session data for a given date
+  static SessionData createDefaultSession(DateTime date) {
+    final dayStartDt = DtHelper.dayStartDt(date);
+    final dayEndDt = DtHelper.dayEndDt(date);
+    return SessionData(
+      dayStartTime: dayStartDt,
+      dayEndTime: dayEndDt,
+      sessionStartDt: dayStartDt,
+      sessionEndDt: dayEndDt,
+    );
+  }
 }
 
 class SessionServices {
