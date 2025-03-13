@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ten_thousands_hours/models/time_data/model/day_entry/day_model.dart';
-import 'package:ten_thousands_hours/models/time_data/model/day_entry/day_services.dart';
-import 'package:ten_thousands_hours/models/time_data/model/time_point/time_point.dart';
+import 'package:ten_thousands_hours/models/time_data/day_entry/day_model.dart';
+import 'package:ten_thousands_hours/models/time_data/day_entry/day_services.dart';
+import 'package:ten_thousands_hours/models/time_data/time_point/time_point.dart';
 
 void main() {
   group('DayModel', () {

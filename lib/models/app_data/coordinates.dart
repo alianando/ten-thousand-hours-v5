@@ -1,24 +1,29 @@
 import 'package:flutter/material.dart';
-import 'package:ten_thousands_hours/models/app_data/indecies_model.dart';
-import 'package:ten_thousands_hours/models/time_data/model/day_entry/day_model.dart';
 import 'package:ten_thousands_hours/root/root.dart';
 
-import '../time_data/model/time_point/time_point.dart';
+import '../time_data/day_entry/day_model.dart';
+import '../time_data/time_point/time_point.dart';
+import 'coordinates/hourly_dur_distribution.dart';
 import 'session_data.dart';
 import 'stat_data.dart';
 
 class Coordinates {
   final SessionOffsets session;
+  final HourlyDurDistributionModel hourlyDurDistribution;
 
   const Coordinates({
     this.session = const SessionOffsets(),
+    this.hourlyDurDistribution = const HourlyDurDistributionModel(),
   });
 
   Coordinates copyWith({
     SessionOffsets? session,
+    HourlyDurDistributionModel? hourlyDurDistribution,
   }) {
     return Coordinates(
       session: session ?? this.session,
+      hourlyDurDistribution:
+          hourlyDurDistribution ?? this.hourlyDurDistribution,
     );
   }
 }
@@ -274,5 +279,57 @@ class SessionOffsets {
       }
     }
     return points;
+  }
+}
+
+class CoordinateHelper {
+  const CoordinateHelper._();
+
+  static Coordinates generateCoordinates({
+    required List<DayEntry> dayEntries,
+    required int activeSessionIndex,
+    required List<int> allSessionInices,
+    required StatData statData,
+    required SessionData sessionData,
+    bool debug = false,
+  }) {
+    final sessionOffsets = SessionOffsets.calculateSession(
+      dayEntries: dayEntries,
+      activeSessionIndex: activeSessionIndex,
+      allSessionInices: allSessionInices,
+      statData: statData,
+      sessionData: sessionData,
+      debug: debug,
+    );
+    final avgSet = HourlyDurDistributionModel.calAvgSet(
+      dayEntries,
+      allSessionInices,
+      debug: debug,
+    );
+    final hourlyDurDistribution = HourlyDurDistributionModel(
+      avgDurSet: avgSet,
+    );
+    return Coordinates(
+      session: sessionOffsets,
+      hourlyDurDistribution: hourlyDurDistribution,
+    );
+  }
+
+  static Coordinates handelTodayDtUpdate({
+    required Coordinates coordinates,
+    required List<TimePoint> corePoints,
+    required DateTime sessionStartDt,
+    required DateTime sessionEndDt,
+    required Duration maxSessionDur,
+    required Duration minSessionDur,
+  }) {
+    final newSession = coordinates.session.handelTodayDtUpdate(
+      corePoints: corePoints,
+      sessionStartDt: sessionStartDt,
+      sessionEndDt: sessionEndDt,
+      maxSessionDur: maxSessionDur,
+      minSessionDur: minSessionDur,
+    );
+    return coordinates.copyWith(session: newSession);
   }
 }

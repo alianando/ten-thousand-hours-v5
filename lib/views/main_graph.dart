@@ -2,9 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ten_thousands_hours/models/time_data/model/day_entry/day_model.dart';
+import 'package:ten_thousands_hours/models/time_data/day_entry/day_model.dart';
 import 'package:ten_thousands_hours/providers/storage_pro.dart';
 import 'package:ten_thousands_hours/providers/time_data_provider.dart';
+import 'package:ten_thousands_hours/widgets/total_summary.dart';
 
 import '../models/app_data/session_data.dart';
 import '../models/app_data/stat_data.dart';
@@ -12,8 +13,8 @@ import '../providers/ticker_provider.dart';
 import '../utils/dt_utils.dart';
 import '../widgets/today_summary.dart';
 
-class TestView extends ConsumerWidget {
-  const TestView({super.key});
+class MainGraph extends ConsumerWidget {
+  const MainGraph({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -31,7 +32,7 @@ class TestView extends ConsumerWidget {
             onPressed: () {
               ref.read(timeDataPro.notifier).handelAddEvent();
             },
-            icon: ref.watch(timeDataPro).isTodayActive
+            icon: ref.watch(timeDataPro).isActive
                 ? const Icon(Icons.pause)
                 : const Icon(Icons.play_arrow),
           ),
@@ -46,6 +47,7 @@ class TestView extends ConsumerWidget {
             GraphStack(),
             SizedBox(height: 30),
             TodaySummary(),
+            TotalSummary(),
           ],
         ),
       ),

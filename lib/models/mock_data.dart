@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:ten_thousands_hours/models/time_data/model/time_entry/time_entry.dart';
+import 'package:ten_thousands_hours/models/time_data/time_entry/time_entry.dart';
 
 final expTimeDataJson = {
   "lastUpdate": "2025-03-04T16:04:09.907735",

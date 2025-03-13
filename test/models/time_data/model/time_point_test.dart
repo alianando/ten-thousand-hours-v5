@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ten_thousands_hours/models/time_data/model/time_point/time_point.dart';
+import 'package:ten_thousands_hours/models/time_data/time_point/time_point.dart';
 
 void main() {
   group('TimePoint', () {

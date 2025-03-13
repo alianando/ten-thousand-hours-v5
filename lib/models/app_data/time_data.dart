@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:ten_thousands_hours/models/time_data/model/day_entry/day_services.dart';
-import 'package:ten_thousands_hours/models/time_data/model/time_point/time_point.dart';
+import 'package:ten_thousands_hours/models/app_data/coordinates/hourly_dur_distribution.dart';
+import 'package:ten_thousands_hours/models/time_data/day_entry/day_services.dart';
+import 'package:ten_thousands_hours/models/time_data/time_point/time_point.dart';
 import 'package:ten_thousands_hours/root/root.dart';
 
-import '../time_data/model/day_entry/day_model.dart';
+import '../time_data/day_entry/day_model.dart';
 import 'coordinates.dart';
 import 'indecies_model.dart';
 import 'session_data.dart';
@@ -51,7 +52,7 @@ class TimeData {
 
   DateTime get lastActiveUpdate => todayEntry.durPoint.dt;
 
-  bool get isTodayActive => todayEntry.events.last.typ == TimePointTyp.resume;
+  bool get isActive => todayEntry.events.last.typ == TimePointTyp.resume;
 
   static generateAppData(
     List<DayEntry> dayEntries, {
@@ -86,14 +87,13 @@ class TimeData {
       allSessionIndices: indices.allSessionIndices,
     );
 
-    final coordinates = Coordinates(
-      session: SessionOffsets.calculateSession(
-        dayEntries: days,
-        activeSessionIndex: indices.today,
-        allSessionInices: indices.allSessionIndices,
-        statData: stat,
-        sessionData: session,
-      ),
+    /// calculate coordinates.
+    final coordinates = CoordinateHelper.generateCoordinates(
+      dayEntries: dayEntries,
+      activeSessionIndex: indices.today,
+      allSessionInices: indices.allSessionIndices,
+      statData: stat,
+      sessionData: session,
     );
     final updatedData = TimeData(
       dayEntries: days,
@@ -123,30 +123,27 @@ class TimeData {
     );
     final newMaxSessionDur = updatedStat.maxDurReleventDays;
     if (newMaxSessionDur == oldMaxSessionDur) {
-      final newCoordinates = Coordinates(
-        session: coordinates.session.handelTodayDtUpdate(
-          corePoints: todayEntry.events,
-          sessionStartDt: sessionData.sessionStartDt,
-          sessionEndDt: sessionData.sessionEndDt,
-          maxSessionDur: oldMaxSessionDur,
-          minSessionDur: updatedStat.minDurReleventDays,
-        ),
+      final newCoordinates = CoordinateHelper.handelTodayDtUpdate(
+        coordinates: coordinates,
+        corePoints: dayEntries[indices.today].events,
+        sessionStartDt: sessionData.sessionStartDt,
+        sessionEndDt: sessionData.sessionEndDt,
+        maxSessionDur: newMaxSessionDur,
+        minSessionDur: Duration.zero,
       );
       return copyWith(
         statData: updatedStat,
         coordinates: newCoordinates,
       );
     }
-    final newCoordinates = Coordinates(
-      session: SessionOffsets.calculateSession(
-        dayEntries: dayEntries,
-        activeSessionIndex: indices.today,
-        allSessionInices: indices.allSessionIndices,
-        statData: updatedStat,
-        sessionData: sessionData,
-      ),
+    final newCoordinates = CoordinateHelper.handelTodayDtUpdate(
+      coordinates: coordinates,
+      corePoints: dayEntries[indices.today].events,
+      sessionStartDt: sessionData.sessionStartDt,
+      sessionEndDt: sessionData.sessionEndDt,
+      maxSessionDur: newMaxSessionDur,
+      minSessionDur: updatedStat.minDurReleventDays,
     );
-
     return copyWith(
       statData: updatedStat,
       coordinates: newCoordinates,
@@ -165,15 +162,14 @@ class TimeData {
       allSessionIndecies: indices.allSessionIndices,
     );
 
-    final coordinates = Coordinates(
-      session: SessionOffsets.calculateSession(
-        dayEntries: dayEntries,
-        activeSessionIndex: indices.today,
-        allSessionInices: indices.allSessionIndices,
-        statData: updatedStat,
-        sessionData: sessionData,
-      ),
+    final coordinates = CoordinateHelper.generateCoordinates(
+      dayEntries: dayEntries,
+      activeSessionIndex: indices.today,
+      allSessionInices: indices.allSessionIndices,
+      statData: updatedStat,
+      sessionData: newSession,
     );
+
     return copyWith(
       sessionData: newSession,
       statData: updatedStat,

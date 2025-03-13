@@ -18,8 +18,10 @@ class TimeEntry {
   });
 
   /// Current total accumulated time across all days
-  Duration get totalAccumulatedTime =>
-      days.fold(Duration.zero, (sum, day) => sum + day.totalDuration);
+  Duration get totalAccumulatedTime => days.fold(
+        Duration.zero,
+        (sum, day) => sum + day.totalDuration,
+      );
 
   /// Get the day model for today
   DayEntry? get today {

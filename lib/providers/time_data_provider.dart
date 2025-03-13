@@ -3,12 +3,12 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:ten_thousands_hours/models/time_data/model/time_point/time_point.dart';
+import 'package:ten_thousands_hours/models/time_data/time_point/time_point.dart';
 import 'package:ten_thousands_hours/providers/storage_pro.dart';
 import 'package:ten_thousands_hours/root/root.dart';
 
 import '../models/app_data/time_data.dart';
-import '../models/time_data/model/day_entry/day_model.dart';
+import '../models/time_data/day_entry/day_model.dart';
 
 final timeDataPro = NotifierProvider<TimeDataNotifier, TimeData>(
   TimeDataNotifier.new,
@@ -46,7 +46,7 @@ class TimeDataNotifier extends Notifier<TimeData> {
           // debugPrint('Loaded from local storage: $localDay');
           final timeData = TimeData.generateAppData(
             localDay,
-            debug: false,
+            debug: true,
           );
           state = timeData;
           pout('    added successfully', debug);
@@ -72,6 +72,26 @@ class TimeDataNotifier extends Notifier<TimeData> {
       }
       final supLastUpdateDt = DateTime.parse(lastUpdate);
       pout('    $supLastUpdateDt', debug);
+      final smaeYear = supLastUpdateDt.year == localUpdated.year;
+      final sameMonth = supLastUpdateDt.month == localUpdated.month;
+      final sameDay = supLastUpdateDt.day == localUpdated.day;
+      final sameHour = supLastUpdateDt.hour == localUpdated.hour;
+      final sameMinute = supLastUpdateDt.minute == localUpdated.minute;
+      final sameSecond = supLastUpdateDt.second == localUpdated.second;
+      final sameDt = smaeYear &&
+          sameMonth &&
+          sameDay &&
+          sameHour &&
+          sameMinute &&
+          sameSecond;
+      if (sameDt) {
+        pout('    Same dt', debug);
+        return null;
+      }
+      if (smaeYear && sameMonth && sameDay) {
+        pout('    Same day', debug);
+        return null;
+      }
       if (supLastUpdateDt.isAtSameMomentAs(localUpdated)) {
         pout('    Identical', debug);
         return null;
@@ -79,6 +99,12 @@ class TimeDataNotifier extends Notifier<TimeData> {
       if (supLastUpdateDt.isBefore(localUpdated)) {
         pout('    Old', debug);
         return null;
+      }
+      if (supLastUpdateDt.isAfter(localUpdated)) {
+        pout(
+          '    difference is by ${supLastUpdateDt.difference(localUpdated)}',
+          debug,
+        );
       }
 
       final record = dayJson
@@ -97,7 +123,7 @@ class TimeDataNotifier extends Notifier<TimeData> {
       // pout(timeData.isTodayActive.toString(), debug);
 
       state = timeData;
-      pout('    added', debug);
+      pout('    supabase added.', debug);
     } catch (e) {
       debugPrint('Error initializing record: $e');
     }

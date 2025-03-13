@@ -2,9 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ten_thousands_hours/models/mock_data.dart';
-import 'package:ten_thousands_hours/models/time_data/model/day_entry/day_model.dart';
-import 'package:ten_thousands_hours/models/time_data/model/time_entry/time_entry.dart';
-import 'package:ten_thousands_hours/models/time_data/model/time_point/time_point.dart';
+import 'package:ten_thousands_hours/models/time_data/day_entry/day_model.dart';
+import 'package:ten_thousands_hours/models/time_data/time_entry/time_entry.dart';
+import 'package:ten_thousands_hours/models/time_data/time_point/time_point.dart';
 
 void main() {
   group('mock data ...', () {

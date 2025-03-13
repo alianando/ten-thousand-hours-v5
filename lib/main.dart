@@ -5,7 +5,7 @@ import 'package:ten_thousands_hours/root/root.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:ten_thousands_hours/views/home_page/home_page.dart';
-import 'package:ten_thousands_hours/views/test.dart';
+import 'package:ten_thousands_hours/views/main_graph.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,8 +34,8 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      // home: const HomePage(),
-      home: const TestView(),
+      home: const HomePage(),
+      // home: const TestView(),
     );
   }
 }

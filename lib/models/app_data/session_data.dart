@@ -1,4 +1,4 @@
-import 'package:ten_thousands_hours/models/time_data/model/time_point/time_point.dart';
+import 'package:ten_thousands_hours/models/time_data/time_point/time_point.dart';
 
 class SessionData {
   final DateTime dayStartTime;

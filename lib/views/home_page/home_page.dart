@@ -1,101 +1,70 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ten_thousands_hours/models/time_data/model/day_entry/day_model.dart';
-import 'package:ten_thousands_hours/models/time_data/model/day_entry/day_services.dart';
-import '../../providers/record_provider.dart';
-import '../../models/time_data/model/time_entry/time_entry.dart';
-import '../../models/time_data/model/time_point/time_point.dart';
+import 'package:ten_thousands_hours/models/time_data/day_entry/day_model.dart';
+import 'package:ten_thousands_hours/views/main_graph.dart';
+import 'package:ten_thousands_hours/widgets/app_bar.dart';
+import '../../models/time_data/time_entry/time_entry.dart';
+import '../../models/time_data/time_point/time_point.dart';
 import 'dart:math' as math;
+import '../../widgets/days_total_dur_graph.dart';
+import '../../widgets/hourly_dur_distribution.dart';
+import '../../widgets/today_sessions.dart';
+import '../../widgets/today_summary.dart';
+import '../../widgets/total_summary.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final timeEntry = ref.watch(timeEntryProvider);
-    final statistics = ref.read(timeEntryProvider.notifier).getStatistics();
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Time Analysis Report'),
-        backgroundColor: Colors.grey[200],
-        foregroundColor: Colors.black,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
-              final timeData = ref.read(timeEntryProvider);
-              final targetDay = timeData.days.last;
-              debugPrint(targetDay.toString());
-              debugPrint(targetDay.events.toString());
-              final sansitized = DayModelService.sanitize(targetDay);
-              debugPrint(sansitized.toString());
-              debugPrint(sansitized.events.toString());
-              // ref.read(timeEntryProvider.notifier).refresh();
-            },
-          ),
-        ],
-      ),
+    // final timeEntry = ref.watch(timeEntryProvider);
+    // final statistics = ref.read(timeEntryProvider.notifier).getStatistics();
+    return const Scaffold(
+      appBar: CustomAppBar(),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildHeader(timeEntry),
-              const Divider(thickness: 2),
-              _buildCurrentStatus(timeEntry),
-              const Divider(),
-              _buildSummaryStatistics(statistics),
-              const Divider(),
-              _buildDailyActivity(timeEntry),
-              const Divider(),
-              _buildTimeDistribution(timeEntry),
-              const Divider(),
-              _buildStreakAnalysis(statistics),
-              //  _buildScientificGraphs(timeEntry),
-              const Divider(),
-              _buildSimpleGraph(timeEntry),
-              const SizedBox(height: 20),
-              _buildActionRow(ref),
+              SizedBox(height: 10),
+              GraphButtons(),
+              GraphStack(),
+              SizedBox(height: 30),
+              HourlyDurDistribution(
+                height: 400,
+                width: double.infinity,
+                showLabels: false,
+                showGrid: false,
+                showAxis: true,
+              ),
+              SizedBox(height: 16),
+              TodaySessions(),
+              TodaySummary(),
+              TotalSummary(),
+              SizedBox(height: 30),
+              DaysTotalDurGraph(),
+              Divider(thickness: 2),
+              // _buildHeader(timeEntry),
+              // const Divider(thickness: 2),
+              // _buildCurrentStatus(timeEntry),
+              // const Divider(),
+              // _buildSummaryStatistics(statistics),
+              // const Divider(),
+              // _buildDailyActivity(timeEntry),
+              // const Divider(),
+              // _buildTimeDistribution(timeEntry),
+              // const Divider(),
+              // _buildStreakAnalysis(statistics),
+              // _buildScientificGraphs(timeEntry),
+              // const Divider(),
+              // _buildSimpleGraph(timeEntry),
+              // const SizedBox(height: 20),
+              // _buildActionRow(ref),
             ],
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildHeader(TimeEntry entry) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'TIME TRACKING ANALYSIS',
-          style: TextStyle(
-            fontFamily: 'Courier',
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Report generated: ${DateTime.now().toString().substring(0, 19)}',
-          style: const TextStyle(fontFamily: 'Courier'),
-        ),
-        Text(
-          'Data last updated: ${entry.lastUpdate.toString().substring(0, 19)}',
-          style: const TextStyle(fontFamily: 'Courier'),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Total days recorded: ${entry.days.length}',
-          style: const TextStyle(fontFamily: 'Courier'),
-        ),
-        Text(
-          'Active days: ${entry.days.where((day) => day.hasActivity).length}',
-          style: const TextStyle(fontFamily: 'Courier'),
-        ),
-      ],
     );
   }
 
@@ -585,26 +554,6 @@ class HomePage extends ConsumerWidget {
         Text(
           'Max: ${maxDuration}m',
           style: const TextStyle(fontFamily: 'Courier', fontSize: 12),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildActionRow(WidgetRef ref) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        ElevatedButton(
-          onPressed: () {
-            ref.read(timeEntryProvider.notifier).addActiveEvent(DateTime.now());
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.grey[300],
-            foregroundColor: Colors.black,
-          ),
-          child: Text(ref.read(timeEntryProvider).isCurrentlyTracking
-              ? 'PAUSE TRACKING'
-              : 'START TRACKING'),
         ),
       ],
     );

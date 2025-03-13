@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ten_thousands_hours/providers/time_data_provider.dart';
-import 'package:ten_thousands_hours/providers/record_provider.dart';
 
 import '../main.dart';
 import '../providers/ticker_provider.dart';
