@@ -7,8 +7,8 @@ import '../time_data_provider.dart';
 
 final hourlyDurProvider = Provider<HourlyDurDistributionModel>((ref) {
   final timeData = ref.watch(timeDataPro);
-  debugPrint(
-    'hourlyDurProvider: ${timeData.coordinates.hourlyDurDistribution.avgDurSet}',
-  );
+  // debugPrint(
+  //   'hourlyDurProvider: ${timeData.coordinates.hourlyDurDistribution.avgDurSet}',
+  // );
   return timeData.coordinates.hourlyDurDistribution;
 });

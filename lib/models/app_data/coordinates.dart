@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ten_thousands_hours/root/root.dart';
 
-import '../time_data/day_entry/day_model.dart';
-import '../time_data/time_point/time_point.dart';
+import '../time_entry_entity/day_entry/day_model.dart';
+import '../time_entry_entity/time_point/time_point.dart';
 import 'coordinates/hourly_dur_distribution.dart';
 import 'session_data.dart';
 import 'stat_data.dart';
@@ -96,24 +96,25 @@ class SessionOffsets {
     bool debug = false,
   }) {
     pout('calculateSession <- SessionOffsets Class', debug);
-    pout(' statData', debug);
-    pout('    maxDur ${statData.maxDurReleventDays}', debug);
-    pout('    minDur ${statData.minDurReleventDays}', debug);
-    pout('    totalDur ${statData.totalDur}', debug);
-    pout('    todayDur ${statData.todayDur}', debug);
-    pout(' sessionData', debug);
-    pout('    sessionStartDt ${sessionData.sessionStartDt}', debug);
-    pout('    sessionEndDt ${sessionData.sessionEndDt}', debug);
-    pout(' activeSessionIndex $activeSessionIndex', debug);
-    pout(' allSessionInices $allSessionInices', debug);
-    pout(' dayEntries', debug);
-    pout('    length ${dayEntries.length}', debug);
-    pout('    first ${dayEntries.first}', debug);
+    // pout(' statData', debug);
+    // pout('    maxDur ${statData.maxDurReleventDays}', debug);
+    // pout('    minDur ${statData.minDurReleventDays}', debug);
+    // pout('    totalDur ${statData.totalDur}', debug);
+    // pout('    todayDur ${statData.todayDur}', debug);
+    // pout(' sessionData', debug);
+    // pout('    sessionStartDt ${sessionData.sessionStartDt}', debug);
+    // pout('    sessionEndDt ${sessionData.sessionEndDt}', debug);
+    // pout(' activeSessionIndex $activeSessionIndex', debug);
+    // pout(' allSessionInices $allSessionInices', debug);
+    // pout(' dayEntries', debug);
+    // pout('    length ${dayEntries.length}', debug);
+    // pout('    first ${dayEntries.first}', debug);
 
     // output objects
     List<Offset> activeObject = [];
     List<List<Offset>> allObjects = [];
-
+    pout('here, ${dayEntries.length} day entries', debug, level: 2);
+    pout('here indecies ${allSessionInices.toList()}', debug, level: 2);
     if (dayEntries.isEmpty) {
       return const SessionOffsets();
     }
@@ -143,6 +144,7 @@ class SessionOffsets {
         ));
       }
     }
+    pout('calculated Session <- SessionOffsets Class', debug);
     return SessionOffsets(
       today: activeObject,
       allDays: allObjects,
@@ -293,6 +295,7 @@ class CoordinateHelper {
     required SessionData sessionData,
     bool debug = false,
   }) {
+    pout('genrate coordinates @ coordinates.dart', debug);
     final sessionOffsets = SessionOffsets.calculateSession(
       dayEntries: dayEntries,
       activeSessionIndex: activeSessionIndex,
@@ -301,14 +304,16 @@ class CoordinateHelper {
       sessionData: sessionData,
       debug: debug,
     );
-    final avgSet = HourlyDurDistributionModel.calAvgSet(
-      dayEntries,
-      allSessionInices,
-      debug: debug,
-    );
+    // final avgSet = HourlyDurDistributionModel.calAvgSet(
+    //   dayEntries,
+    //   allSessionInices,
+    //   debug: debug,
+    // );
     final hourlyDurDistribution = HourlyDurDistributionModel(
-      avgDurSet: avgSet,
+      // avgDurSet: avgSet,
+      avgDurSet: Map<int, Duration>.from({}),
     );
+    pout('coordinates generated', debug);
     return Coordinates(
       session: sessionOffsets,
       hourlyDurDistribution: hourlyDurDistribution,

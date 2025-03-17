@@ -1,7 +1,7 @@
-import 'package:ten_thousands_hours/models/time_data/time_point/time_point.dart';
+import 'package:ten_thousands_hours/models/time_entry_entity/time_point/time_point.dart';
 
 import '../../../root/root.dart';
-import '../../time_data/day_entry/day_model.dart';
+import '../../time_entry_entity/day_entry/day_model.dart';
 
 class HourlyDurDistributionModel {
   final Map<int, Duration> avgDurSet;

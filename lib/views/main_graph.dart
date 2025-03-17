@@ -1,8 +1,6 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ten_thousands_hours/models/time_data/day_entry/day_model.dart';
+import 'package:ten_thousands_hours/models/time_entry_entity/day_entry/day_model.dart';
 import 'package:ten_thousands_hours/providers/storage_pro.dart';
 import 'package:ten_thousands_hours/providers/time_data_provider.dart';
 import 'package:ten_thousands_hours/widgets/total_summary.dart';
@@ -12,48 +10,6 @@ import '../models/app_data/stat_data.dart';
 import '../providers/ticker_provider.dart';
 import '../utils/dt_utils.dart';
 import '../widgets/today_summary.dart';
-
-class MainGraph extends ConsumerWidget {
-  const MainGraph({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Test View'),
-        actions: [
-          IconButton(
-            onPressed: () {
-              ref.read(timeDataPro.notifier).initTimeData(debug: true);
-            },
-            icon: const Icon(Icons.abc),
-          ),
-          IconButton(
-            onPressed: () {
-              ref.read(timeDataPro.notifier).handelAddEvent();
-            },
-            icon: ref.watch(timeDataPro).isActive
-                ? const Icon(Icons.pause)
-                : const Icon(Icons.play_arrow),
-          ),
-        ],
-      ),
-      body: const Padding(
-        padding: EdgeInsets.all(8.0),
-        child: Column(
-          children: [
-            SizedBox(height: 10),
-            GraphButtons(),
-            GraphStack(),
-            SizedBox(height: 30),
-            TodaySummary(),
-            TotalSummary(),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 class GraphButtons extends ConsumerWidget {
   const GraphButtons({super.key});

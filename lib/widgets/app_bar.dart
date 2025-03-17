@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import '../models/time_data/time_point/time_point.dart';
+import '../models/time_entry_entity/time_point/time_point.dart';
 import '../providers/time_data_provider.dart';
 
 final appBarPro = Provider((ref) {

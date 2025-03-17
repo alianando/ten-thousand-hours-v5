@@ -2,9 +2,9 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ten_thousands_hours/models/time_data/time_point/time_point.dart';
+import 'package:ten_thousands_hours/models/time_entry_entity/time_point/time_point.dart';
 import 'package:ten_thousands_hours/root/root.dart';
-import '../models/time_data/day_entry/day_model.dart';
+import '../models/time_entry_entity/day_entry/day_model.dart';
 import '../providers/other_providers/hourly_dur_provider.dart';
 
 class HourlyDurDistribution extends ConsumerWidget {
@@ -109,7 +109,7 @@ class HourlyDurDistribution extends ConsumerWidget {
     // final days = ref.watch(daysForHourlyDurPro);
     final hourlyDis = ref.watch(hourlyDurProvider);
     final hourlyData = hourlyDis.avgDurSet;
-    debugPrint('hourlyData at widget: $hourlyData');
+    // debugPrint('hourlyData at widget: $hourlyData');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

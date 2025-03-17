@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:ten_thousands_hours/models/app_data/coordinates/hourly_dur_distribution.dart';
-import 'package:ten_thousands_hours/models/time_data/day_entry/day_services.dart';
-import 'package:ten_thousands_hours/models/time_data/time_point/time_point.dart';
+import 'package:ten_thousands_hours/models/time_entry_entity/day_entry/day_services.dart';
+import 'package:ten_thousands_hours/models/time_entry_entity/time_point/time_point.dart';
 import 'package:ten_thousands_hours/root/root.dart';
 
-import '../time_data/day_entry/day_model.dart';
+import '../time_entry_entity/day_entry/day_model.dart';
 import 'coordinates.dart';
 import 'indecies_model.dart';
 import 'session_data.dart';
@@ -58,13 +57,14 @@ class TimeData {
     List<DayEntry> dayEntries, {
     bool debug = false,
   }) {
-    // pout('AppData: generateAppData', debug);
+    pout('AppData: generateAppData', debug, level: 2);
     // pout('dayEntries: ${dayEntries.length}', debug);
     if (dayEntries.length <= 1) {
       debug = false;
     }
     List<DayEntry> days = List.from(dayEntries);
     days = days.map((e) => DayModelService.sanitize(e)).toList();
+
     Indices indices = IndicesServices.updateIndices(
       dayDates: days.map((e) => e.dt).toList(),
     );
@@ -77,7 +77,8 @@ class TimeData {
         dayDates: days.map((e) => e.dt).toList(),
       );
     }
-    // pout('sanitized days ${days.length}', debug);
+    pout('indecies ${indices.toString()}', debug, level: 3);
+    pout('sanitized days ${days.length}', debug, level: 3);
     final session = SessionServices.createDefaultSession(now);
     final stat = StatServices.calculateStatistics(
       days: days,
@@ -86,15 +87,18 @@ class TimeData {
       todayIndex: indices.today,
       allSessionIndices: indices.allSessionIndices,
     );
+    pout('stat calculated', debug, level: 3);
 
     /// calculate coordinates.
     final coordinates = CoordinateHelper.generateCoordinates(
-      dayEntries: dayEntries,
+      dayEntries: days,
       activeSessionIndex: indices.today,
       allSessionInices: indices.allSessionIndices,
       statData: stat,
       sessionData: session,
+      debug: debug,
     );
+    pout('coordinates generated', debug, level: 3);
     final updatedData = TimeData(
       dayEntries: days,
       indices: indices,

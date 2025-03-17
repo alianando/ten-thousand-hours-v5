@@ -1,4 +1,6 @@
-import '../time_data/time_point/time_point.dart';
+import 'package:ten_thousands_hours/root/root.dart';
+
+import '../time_entry_entity/time_point/time_point.dart';
 
 class Indices {
   final int today;
@@ -63,11 +65,13 @@ class IndicesServices {
 
   static Indices updateIndices({
     required List<DateTime> dayDates,
+    bool debug = false,
   }) {
+    pout('updateIndecies <- indecies_model.dart', debug);
     if (dayDates.isEmpty) {
       return const Indices();
     }
-
+    pout('dates found : ${dayDates.length}', debug);
     final now = DateTime.now();
     final today = DtHelper.dayStartDt(now);
     // final startOfMonth = DateTime(now.year, now.month, 1);

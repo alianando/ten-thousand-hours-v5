@@ -3,12 +3,12 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:ten_thousands_hours/models/time_data/time_point/time_point.dart';
+import 'package:ten_thousands_hours/models/time_entry_entity/time_point/time_point.dart';
 import 'package:ten_thousands_hours/providers/storage_pro.dart';
 import 'package:ten_thousands_hours/root/root.dart';
 
 import '../models/app_data/time_data.dart';
-import '../models/time_data/day_entry/day_model.dart';
+import '../models/time_entry_entity/day_entry/day_model.dart';
 
 final timeDataPro = NotifierProvider<TimeDataNotifier, TimeData>(
   TimeDataNotifier.new,
@@ -43,7 +43,7 @@ class TimeDataNotifier extends Notifier<TimeData> {
               })
               .whereType<DayEntry>()
               .toList();
-          // debugPrint('Loaded from local storage: $localDay');
+          pout('localDay: $localDay', debug, level: 2);
           final timeData = TimeData.generateAppData(
             localDay,
             debug: true,

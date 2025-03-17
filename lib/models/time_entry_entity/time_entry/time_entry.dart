@@ -144,8 +144,77 @@ class TimeEntry {
     }
   }
 
+  /// Equality operator override
+  ///
+  /// Determines if two TimeEntry instances should be considered equal.
+  /// Two entries are equal if they have the same lastUpdate timestamp
+  /// and contain the same days with the same content.
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    if (other is! TimeEntry) return false;
+
+    final TimeEntry otherEntry = other;
+
+    // Check if lastUpdate is the same moment
+    if (!lastUpdate.isAtSameMomentAs(otherEntry.lastUpdate)) {
+      return false;
+    }
+
+    // Check if days are the same
+    if (days.length != otherEntry.days.length) {
+      return false;
+    }
+
+    // Sort days by date for consistent comparison
+    final List<DayEntry> sortedDays = List.from(days)
+      ..sort((a, b) => a.dt.compareTo(b.dt));
+    final List<DayEntry> otherSortedDays = List.from(otherEntry.days)
+      ..sort((a, b) => a.dt.compareTo(b.dt));
+
+    // Compare each day
+    for (int i = 0; i < sortedDays.length; i++) {
+      if (sortedDays[i] != otherSortedDays[i]) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /// Hash code override
+  ///
+  /// Provides a consistent hash code based on the lastUpdate and days content.
+  /// This is required to pair with the equality operator for proper behavior
+  /// in collections like Sets and Maps.
+  @override
+  int get hashCode {
+    // Generate a hash based on lastUpdate and all days
+    return Object.hash(
+      lastUpdate,
+      Object.hashAll(days),
+    );
+  }
+
+  /// String representation
+  ///
+  /// Provides a human-readable representation of the TimeEntry for debugging.
+  @override
+  String toString() {
+    final activeDaysCount = days.where((day) => day.hasActivity).length;
+    final totalHours = totalAccumulatedTime.inHours;
+    final totalMinutes = totalAccumulatedTime.inMinutes % 60;
+
+    return 'TimeEntry('
+        'lastUpdate: ${lastUpdate.toIso8601String()}, '
+        'days: $activeDaysCount, '
+        'totalTime: ${totalHours}h ${totalMinutes}m, '
+        'isTracking: $isCurrentlyTracking'
+        ')';
+  }
+
   /// Helper method to check if two dates are the same day
-  //
   bool _isSameDay(DateTime a, DateTime b) {
     return a.year == b.year && a.month == b.month && a.day == b.day;
   }

@@ -19,24 +19,6 @@ class DayEntry {
   DateTime get dayEnd => DtHelper.dayEndDt(dt);
   bool get isToday => _isSameDay(dt, DateTime.now());
 
-  // ADDED: Session extraction
-  List<(TimePoint, TimePoint, Duration)> get sessions {
-    final result = <(TimePoint, TimePoint, Duration)>[];
-    TimePoint? sessionStart;
-
-    for (final event in events) {
-      if (event.typ == TimePointTyp.resume) {
-        sessionStart = event;
-      } else if (event.typ == TimePointTyp.pause && sessionStart != null) {
-        final duration = event.dt.difference(sessionStart.dt);
-        result.add((sessionStart, event, duration));
-        sessionStart = null;
-      }
-    }
-
-    return result;
-  }
-
   Map<String, dynamic> toJson() {
     return {
       'lastUpdate': dt.toIso8601String(),
@@ -102,11 +84,6 @@ class DayEntry {
         Object.hashAll(events),
       );
 
-  // ADDED: Helper method for checking same day
-  static bool _isSameDay(DateTime a, DateTime b) {
-    return a.year == b.year && a.month == b.month && a.day == b.day;
-  }
-
   // ADDED: Analytics methods
   Map<int, Duration> get hourlyDistribution {
     final distribution = <int, Duration>{};
@@ -156,7 +133,29 @@ class DayEntry {
     return maxHour;
   }
 
+  // ADDED: Helper method for checking same day
+  static bool _isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
   // Helper methods for DayModelService
+  // ADDED: Session extraction
+  List<(TimePoint, TimePoint, Duration)> get sessions {
+    final result = <(TimePoint, TimePoint, Duration)>[];
+    TimePoint? sessionStart;
+
+    for (final event in events) {
+      if (event.typ == TimePointTyp.resume) {
+        sessionStart = event;
+      } else if (event.typ == TimePointTyp.pause && sessionStart != null) {
+        final duration = event.dt.difference(sessionStart.dt);
+        result.add((sessionStart, event, duration));
+        sessionStart = null;
+      }
+    }
+
+    return result;
+  }
 
   /// Creates an empty day for a specific date
   static DayEntry createEmptyDay(DateTime date) {

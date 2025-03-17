@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ten_thousands_hours/models/time_data/day_entry/day_model.dart';
+import 'package:ten_thousands_hours/models/time_entry_entity/day_entry/day_model.dart';
 import 'package:ten_thousands_hours/views/main_graph.dart';
 import 'package:ten_thousands_hours/widgets/app_bar.dart';
-import '../../models/time_data/time_entry/time_entry.dart';
-import '../../models/time_data/time_point/time_point.dart';
+import '../../models/coordinates_entry/continious_day_coo_entity/continious_day_graph.dart';
+import '../../models/time_entry_entity/time_entry/time_entry.dart';
+import '../../models/time_entry_entity/time_point/time_point.dart';
 import 'dart:math' as math;
 import '../../widgets/days_total_dur_graph.dart';
 import '../../widgets/hourly_dur_distribution.dart';
@@ -28,23 +29,25 @@ class HomePage extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(height: 10),
-              GraphButtons(),
-              GraphStack(),
-              SizedBox(height: 30),
-              HourlyDurDistribution(
-                height: 400,
-                width: double.infinity,
-                showLabels: false,
-                showGrid: false,
-                showAxis: true,
-              ),
-              SizedBox(height: 16),
-              TodaySessions(),
+              EventsGraphStack(),
+              SizedBox(height: 10),
+              // GraphButtons(),
+              // GraphStack(),
+              // SizedBox(height: 30),
+              // HourlyDurDistribution(
+              //   height: 400,
+              //   width: double.infinity,
+              //   showLabels: false,
+              //   showGrid: false,
+              //   showAxis: true,
+              // ),
+              // SizedBox(height: 16),
+              // TodaySessions(),
               TodaySummary(),
               TotalSummary(),
-              SizedBox(height: 30),
-              DaysTotalDurGraph(),
-              Divider(thickness: 2),
+              // SizedBox(height: 30),
+              // DaysTotalDurGraph(),
+              // Divider(thickness: 2),
               // _buildHeader(timeEntry),
               // const Divider(thickness: 2),
               // _buildCurrentStatus(timeEntry),

@@ -978,6 +978,11 @@ class DtHelper {
     return !not;
   }
 
+  static bool isToday(DateTime dt) {
+    final now = DateTime.now();
+    return dt.year == now.year && dt.month == now.month && dt.day == now.day;
+  }
+
   static DateTime dayStartDt(DateTime date) {
     return DateTime(date.year, date.month, date.day);
   }

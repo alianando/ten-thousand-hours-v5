@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ten_thousands_hours/models/mock_data.dart';
+import 'package:ten_thousands_hours/models/time_entry_entity/time_entry_provider/time_entry_provider.dart';
 import 'package:ten_thousands_hours/providers/time_data_provider.dart';
 import 'package:ten_thousands_hours/root/ticker_layer.dart';
 
@@ -15,7 +16,8 @@ class _RootState extends ConsumerState<Root> {
       //       const MockData().mockTimeEntry,
       //     );
       // ref.read(timeEntryProvider.notifier).init();
-      ref.read(timeDataPro.notifier).initTimeData(debug: true);
+      // ref.read(timeDataPro.notifier).initTimeData(debug: true);
+      ref.read(timeEntryP.notifier).retrieveTimeEntry(debug: true);
     });
   }
 
