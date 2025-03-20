@@ -1,297 +1,160 @@
-import 'dart:math';
+class DtHelper {
+  const DtHelper._();
 
-class DtUtils {
-  const DtUtils._();
-
-  static String dtToHM(DateTime dt) {
-    int hour = dt.hour;
-    String h = hour.toString();
-    if (hour < 10) {
-      h = '0$h';
-    }
-    int minute = dt.minute;
-    String m = minute.toString();
-    if (minute < 10) {
-      m = '0$m';
-    }
-    return '$h:$m';
+  static bool sameHourMinute(DateTime dt1, DateTime dt2) {
+    return dt1.hour == dt2.hour && dt1.minute == dt2.minute;
   }
 
-  static String durToLabel(Duration dur) {
-    String hms = '';
-    int h = dur.inHours;
-    // if (h < 10) {
-    //   hms = '${hms}0$h';
-    // } else {
-    //   hms = '$hms$h';
-    // }
-    hms = '$hms${h}h';
-    int m = (dur - Duration(hours: h)).inMinutes;
-    if (m < 10) {
-      hms = '$hms.0${m}m';
-    } else {
-      hms = '$hms.${m}m';
-    }
-    // int s = (dur - Duration(hours: h, minutes: m)).inSeconds;
-    // if (s < 10) {
-    //   hms = '$hms.0$s';
-    // } else {
-    //   hms = '$hms.$s';
-    // }
-    return hms;
+  static bool isDayStartDt(DateTime dt) {
+    final bool not = dt.hour != 0 || dt.minute != 0 || dt.second != 0;
+    return !not;
   }
 
-  static String durToHM(Duration dur) {
-    String hms = '';
-    int h = dur.inHours;
-    if (h < 10) {
-      hms = '${hms}0$h';
-    } else {
-      hms = '$hms$h';
-    }
-    int m = (dur - Duration(hours: h)).inMinutes;
-    if (m < 10) {
-      hms = '$hms.0$m';
-    } else {
-      hms = '$hms.$m';
-    }
-    // int s = (dur - Duration(hours: h, minutes: m)).inSeconds;
-    // if (s < 10) {
-    //   hms = '$hms.0$s';
-    // } else {
-    //   hms = '$hms.$s';
-    // }
-    return hms;
+  static bool isToday(DateTime dt) {
+    final now = DateTime.now();
+    return dt.year == now.year && dt.month == now.month && dt.day == now.day;
   }
 
-  static String durToHMS(Duration dur) {
-    String hms = '';
-    int h = dur.inHours;
-    if (h < 10) {
-      hms = '${hms}0${h}h';
-    } else {
-      hms = '$hms${h}h';
-    }
-    int m = (dur - Duration(hours: h)).inMinutes;
-    if (m < 10) {
-      hms = '$hms.0${m}m';
-    } else {
-      hms = '$hms.${m}m';
-    }
-    int s = (dur - Duration(hours: h, minutes: m)).inSeconds;
-    if (s < 10) {
-      hms = '$hms.0${s}s';
-    } else {
-      hms = '$hms.${s}s';
-    }
-    return hms;
+  static DateTime dayStartDt(DateTime date) {
+    return DateTime(date.year, date.month, date.day);
   }
 
-  static DateTime generateRandomDt() {
-    const int year = 2024;
-    final random = Random();
-    final month = random.nextInt(12) + 1;
-    final numberOfDays = getDaysInMonth(year, month);
-    final day = random.nextInt(numberOfDays) + 1;
-    final hour = random.nextInt(24) + 1;
-    final minute = random.nextInt(60) + 1;
-    final sec = random.nextInt(60) + 1;
-    return DateTime(year, month, day, hour, minute, sec);
+  static DateTime dayEndDt(DateTime date) {
+    return DateTime(date.year, date.month, date.day, 23, 59, 59, 999, 999);
   }
 
-  static int getDaysInMonth(int year, int month) {
-    // Create a DateTime object for the first day of the next month
-    final nextMonthFirstDay = DateTime(year, month + 1, 1);
-
-    // Subtract one day to get the last day of the current month
-    final lastDayOfMonth = nextMonthFirstDay.subtract(const Duration(days: 1));
-
-    // Return the day of the last day of the month
-    return lastDayOfMonth.day;
-  }
-
-  static bool sameDay(DateTime dt1, DateTime dt2) {
-    bool dayMatch = dt1.day == dt2.day;
-    if (!dayMatch) return false;
-    bool monthMatch = dt1.month == dt2.month;
-    if (!monthMatch) return false;
-    bool yrMatch = dt1.year == dt2.year;
-    if (!yrMatch) return false;
-    return true;
-  }
-
-  static DateTime getDayStartdt(DateTime dt) {
-    return DateTime(dt.year, dt.month, dt.day, 0, 0, 0, 0, 0);
-  }
-
-  static DateTime getDayEnddt(DateTime dt) {
+  static DateTime correctDt(DateTime dt, DateTime refDate) {
     return DateTime(
-      dt.year,
-      dt.month,
-      dt.day,
-      23,
-      59,
-      59,
-      59,
-      59,
+      refDate.year,
+      refDate.month,
+      refDate.day,
+      dt.hour,
+      dt.minute,
+      dt.second,
+      dt.millisecond,
+      dt.microsecond,
     );
   }
 
-  static DateTime getSessionStartTime({
-    required DateTime refDt,
-    required Duration viewWidth,
-  }) {
-    if (viewWidth == const Duration(hours: 1)) {
-      return DateTime(
-        refDt.year,
-        refDt.month,
-        refDt.day,
-        refDt.hour,
-        0,
-        0,
-        0,
-      );
-    }
-    if (viewWidth == const Duration(hours: 12)) {
-      int hour = 0;
-
-      if (refDt.hour >= 12) {
-        hour = 12;
-      }
-      return DateTime(
-        refDt.year,
-        refDt.month,
-        refDt.day,
-        hour,
-        0,
-        0,
-        0,
-      );
-    }
-    if (viewWidth == const Duration(days: 1)) {
-      return DateTime(refDt.year, refDt.month, refDt.day, 0, 0, 0, 0);
-    }
-    if (viewWidth == const Duration(minutes: 1)) {
-      return DateTime(
-        refDt.year,
-        refDt.month,
-        refDt.day,
-        refDt.hour,
-        refDt.minute,
-        0,
-        0,
-      );
-    }
-    return refDt;
+  /// Returns the week number (1-53) for a given date
+  static int getWeekNumber(DateTime date) {
+    final firstDayOfYear = DateTime(date.year, 1, 1);
+    final dayOfYear = date.difference(firstDayOfYear).inDays;
+    return ((dayOfYear - date.weekday + 10) / 7).floor();
   }
 
-  static DateTime getRefDt({
-    required DateTime nowDt,
-    required DateTime targetDayDt,
-    required bool today,
-  }) {
-    if (today) {
-      return nowDt;
-    }
-    return DateTime(
-      targetDayDt.year,
-      targetDayDt.month,
-      targetDayDt.day,
-      nowDt.hour,
-      nowDt.minute,
-      nowDt.second,
-    );
+  /// Returns the first day of the week containing the given date
+  /// (Monday is considered the first day of the week)
+  static DateTime getFirstDayOfWeek(DateTime date) {
+    final daysToSubtract = date.weekday - 1;
+    return DateTime(date.year, date.month, date.day - daysToSubtract);
   }
 
-  static String dtToHMS(DateTime dt) {
-    int hour = dt.hour;
-    String identifier = 'am';
-    if (hour > 12) {
-      hour = hour - 12;
-      identifier = 'pm';
-    }
-    String hString = '$hour';
-    if (hour < 10) {
-      hString = '0$hour';
-    }
-    String mString = dt.minute.toString();
-    if (dt.minute < 10) {
-      mString = '0$mString';
-    }
-    String sString = dt.second.toString();
-    if (dt.second < 10) {
-      sString = '0$sString';
-    }
-    return '$hString:$mString:$sString $identifier';
+  /// Returns the last day of the week containing the given date
+  /// (Sunday is considered the last day of the week)
+  static DateTime getLastDayOfWeek(DateTime date) {
+    final daysToAdd = 7 - date.weekday;
+    return DateTime(date.year, date.month, date.day + daysToAdd);
   }
 
-  static String dateString(DateTime dt) {
-    String month = 'Jan';
-    switch (dt.month) {
-      case 2:
-        month = 'Feb';
-        break;
-      case 3:
-        month = 'Mar';
-        break;
-      case 4:
-        month = 'Apr';
-        break;
-      case 5:
-        month = 'May';
-        break;
-      case 6:
-        month = 'Jun';
-        break;
-      case 7:
-        month = 'Jul';
-        break;
-      case 8:
-        month = 'Aug';
-        break;
-      case 9:
-        month = 'Sep';
-        break;
-      case 10:
-        month = 'Oct';
-        break;
-      case 11:
-        month = 'Nov';
-        break;
-      default:
-        month = 'Dec';
-        break;
-    }
-    return '$month ${dt.day}, ${dt.year}';
+  /// Returns the first day of the month containing the given date
+  static DateTime getFirstDayOfMonth(DateTime date) {
+    return DateTime(date.year, date.month, 1);
   }
 
-  static String dateToDM(DateTime dt) {
-    int day = dt.day;
-    String d = day.toString();
-    if (day < 10) {
-      d = '0$d';
-    }
-    int month = dt.month;
-    String m = month.toString();
-    if (month < 10) {
-      m = '0$m';
-    }
-    return '$d / $m';
+  /// Returns the last day of the month containing the given date
+  static DateTime getLastDayOfMonth(DateTime date) {
+    return DateTime(date.year, date.month + 1, 0);
   }
 
-  static DateTime combineDateAndTime({
-    required DateTime date,
-    required DateTime time,
-  }) {
-    return DateTime(
-      date.year,
-      date.month,
-      date.day,
-      time.hour,
-      time.minute,
-      time.second,
-      time.millisecond,
-      time.microsecond,
-    );
+  /// Returns a human-readable string describing the time difference
+  /// e.g. "2 days ago", "3 hours ago", "just now"
+  static String timeAgo(DateTime dateTime) {
+    final now = DateTime.now();
+    final difference = now.difference(dateTime);
+
+    if (difference.inDays > 365) {
+      return '${(difference.inDays / 365).floor()} years ago';
+    } else if (difference.inDays > 30) {
+      return '${(difference.inDays / 30).floor()} months ago';
+    } else if (difference.inDays > 0) {
+      return '${difference.inDays} days ago';
+    } else if (difference.inHours > 0) {
+      return '${difference.inHours} hours ago';
+    } else if (difference.inMinutes > 0) {
+      return '${difference.inMinutes} minutes ago';
+    } else {
+      return 'just now';
+    }
+  }
+
+  /// Formats date as a string in the format "Mon, 5 Mar"
+  static String formatDateShort(DateTime date) {
+    final days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    final months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
+    ];
+    final dayOfWeek = days[date.weekday - 1];
+    final month = months[date.month - 1];
+    return '$dayOfWeek, ${date.day} $month';
+  }
+}
+
+/// Add this at the top of the file, above your classes
+class TimeConstants {
+  static const Duration minSessionTime = Duration(minutes: 1);
+  static const Duration defaultSessionTime = Duration(hours: 1);
+  static const Duration maxDefaultSessionTime = Duration(hours: 8);
+
+  static const int defaultStartHour = 9;
+  static const int defaultEndHour = 17;
+
+  static const String dateFormat = 'yyyy-MM-dd';
+  static const String timeFormat = 'HH:mm';
+  static const String dateTimeFormat = 'yyyy-MM-dd HH:mm';
+
+  static const String dbDateTimeFormat = 'yyyy-MM-ddTHH:mm:ss.SSS';
+}
+
+/// Utility for time format conversions
+class TimeFormatter {
+  static String formatDuration(Duration duration) {
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes % 60;
+    final seconds = duration.inSeconds % 60;
+
+    if (hours > 0) {
+      return '${hours}h ${minutes}m';
+    } else if (minutes > 0) {
+      return '${minutes}m ${seconds}s';
+    } else {
+      return '${seconds}s';
+    }
+  }
+
+  static String formatDurationCompact(Duration duration) {
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes % 60;
+
+    if (hours > 0) {
+      return '$hours:${minutes.toString().padLeft(2, '0')}';
+    } else {
+      return '0:${minutes.toString().padLeft(2, '0')}';
+    }
+  }
+
+  static String formatTime(DateTime time) {
+    return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
   }
 }
