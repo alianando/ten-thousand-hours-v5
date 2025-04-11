@@ -15,11 +15,13 @@ class DayEntry {
   });
 
   // ADDED: Computed properties for convenience
+
   // Duration get lastEventDur => durPoint.dur;
   // bool get hasActivity => lastEventDur.inSeconds > 0;
-  DateTime get dayStart => DtHelper.dayStartDt(dt);
-  DateTime get dayEnd => DtHelper.dayEndDt(dt);
+  DateTime get startDt => DtHelper.dayStartDt(dt);
+  DateTime get endDt => DtHelper.dayEndDt(dt);
   bool get isToday => _isSameDay(dt, DateTime.now());
+  List<TimeStamp> get tps => List<TimeStamp>.from(events);
 
   Map<String, dynamic> toJson() {
     return {
@@ -91,7 +93,7 @@ class DayEntry {
   /// Creates a corrected version of this day model
   DayEntry corrected() {
     // Ensure day starts at midnight
-    final date = dayStart;
+    final date = startDt;
 
     // Sort events by time
     List<TimeStamp> sortedEvents = List<TimeStamp>.from(events);

@@ -20,23 +20,25 @@ class DebugView extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Debug View'),
+        actions: const [EventButton()],
       ),
       body: ListView(
         shrinkWrap: true,
         physics: const ScrollPhysics(),
         children: const [
           Text('Debug View'),
-          PGStackView(),
+          TodayRecordProviderDebugView(),
+          // PGStackView(),
           HDStackView(),
           SizedBox(height: 10),
           DurGraphStack(),
-          IndicesProviderDebugView(),
-          TodayRecordProviderDebugView(),
-          TodayDurationProviderDebugView(),
-          TodayPrimaryGraphPointsProviderDebug(),
-          PgOtherDayPointsProviderDebugView(),
-          ReleventDaysProviderDebugView(),
-          TimeRecordProviderDebugView(),
+          // IndicesProviderDebugView(),
+          // TodayRecordProviderDebugView(),
+          // TodayDurationProviderDebugView(),
+          // TodayPrimaryGraphPointsProviderDebug(),
+          // PgOtherDayPointsProviderDebugView(),
+          // ReleventDaysProviderDebugView(),
+          // TimeRecordProviderDebugView(),
         ],
       ),
     );

@@ -9,6 +9,11 @@ class Indices {
     required this.monthIndices,
   });
 
+  int get today => todayIndex;
+  List<int> get week => List.from(weekIndices);
+  List<int> get month => List.from(monthIndices);
+  // List<int> get pastDays =>
+
   factory Indices.fromJson(Map<String, dynamic> json) {
     return Indices(
       todayIndex: json['todayIndex'],

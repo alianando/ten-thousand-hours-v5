@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ten_thousands_hours/modules/6_graphs/3_hour_distribution_graph/day_hour_duration_provider.dart';
 import 'package:ten_thousands_hours/modules/6_graphs/3_hour_distribution_graph/hourly_distribution_services.dart';
 
 import 'today_hd_provider.dart';
@@ -9,12 +10,19 @@ class TodayHdPainter extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final data = ref.watch(dayHourDurationProvider);
+    Map<double, double> normalized = {};
+    data.forEach((key, value) {
+      normalized[key / 24] =
+          value.inMilliseconds / const Duration(hours: 1).inMilliseconds;
+    });
     return SizedBox(
       height: double.infinity,
       width: double.infinity,
       child: CustomPaint(
         painter: TodayHdPainterPainter(
-          ref.watch(todayHdProvider),
+          normalized,
+          // ref.watch(dayHourDurationProvider),
         ),
       ),
     );

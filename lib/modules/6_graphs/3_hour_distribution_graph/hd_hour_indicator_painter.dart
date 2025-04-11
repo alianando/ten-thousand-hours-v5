@@ -28,14 +28,14 @@ class HdHourIndicatorPainterPainter extends CustomPainter {
       ..color = Colors.grey
       ..strokeWidth = 1.5
       ..style = PaintingStyle.stroke;
-    Path p = Path();
-    final hourVal = HDServices.hourlyXval;
+    // Path p = Path();
+    // final hourVal = HDServices.hourlyXval;
 
-    for (var val in hourVal.entries) {
-      final double x = val.value;
+    for (int i = 0; i <= 24; i++) {
+      final double x = (i / 24) * size.width;
       canvas.drawLine(
-        Offset(x * size.width, size.height + 4),
-        Offset(x * size.width, size.height + 10),
+        Offset(x, size.height + 4),
+        Offset(x, size.height + 10),
         paint,
       );
     }

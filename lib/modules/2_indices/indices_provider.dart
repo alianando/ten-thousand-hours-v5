@@ -22,9 +22,9 @@ class IndicesNotifier extends Notifier<Indices> {
 
     for (int i = days.length - 1; i >= 0; i--) {
       final dt = days[i].dt;
-      if (dt.isBefore(monthStartDt)) {
-        break;
-      }
+      // if (dt.isBefore(monthStartDt)) {
+      //   break;
+      // }
       monthIndices.add(i);
 
       if (!dt.isBefore(weekStartDt)) {

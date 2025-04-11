@@ -242,3 +242,12 @@ class TimeRecordProviderDebugView extends ConsumerWidget {
     );
   }
 }
+
+class ClearLocalData extends ConsumerWidget {
+  const ClearLocalData({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Container();
+  }
+}
