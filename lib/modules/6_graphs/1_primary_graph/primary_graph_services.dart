@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../utils/dt_utils.dart';
-import '../../1_time_record/time_stamp.dart';
+import '../../0_data_model/time_stamp.dart';
 import '../../5_coordinates/c.dart';
 
 class PrimaryGraphService {

@@ -14,7 +14,7 @@ class DurGraphStack extends ConsumerWidget {
       children: [
         Padding(
           padding: EdgeInsets.only(left: 8),
-          child: Text('Total Duration this month'),
+          child: Text('Daily Duration Graph'),
         ),
         SizedBox(
           height: 120,

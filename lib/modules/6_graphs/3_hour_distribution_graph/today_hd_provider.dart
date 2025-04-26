@@ -10,11 +10,7 @@ final todayHdProvider = Provider<Map<double, double>>((ref) {
   if (cooList.isEmpty) {
     return {};
   }
-  // List<C> coordinates = cooList.last;
-  List<C> coordinates = cooList[cooList.length - 6];
-  // if (cooList.length >= 2) {
-  //   coordinates = cooList[cooList.length - 4];
-  // }
+  List<C> coordinates = cooList[cooList.length - 1];
   debugPrint('Today_HourlyDistibution_Provider.dart');
   final val = HDServices.getHourlyDistribution(coordinates, debug: true);
   return val;

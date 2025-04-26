@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ten_thousands_hours/modules/1_time_record/time_record_provider.dart';
+import 'package:ten_thousands_hours/modules/6_graphs/3_hour_distribution_graph/1_hd_today_paint.dart';
 import 'package:ten_thousands_hours/modules/6_graphs/3_hour_distribution_graph/dh_day_index_provider.dart';
 
+import '2_hd_lebels_painter.dart';
 import 'day_hour_duration_provider.dart';
 import 'hd_avg_distribution_painter.dart';
 import 'hd_hour_indicator_painter.dart';
@@ -31,7 +33,8 @@ class _HDStackViewState extends ConsumerState<HDStackView> {
       children: [
         Padding(
           padding: EdgeInsets.only(left: 8),
-          child: _DateWidget(),
+          // child: _DateWidget(),
+          child: Text('Hourly Distribution Graph'),
         ),
         SizedBox(
           height: 150,
@@ -41,7 +44,9 @@ class _HDStackViewState extends ConsumerState<HDStackView> {
             child: Stack(
               children: [
                 HdHourIndicatorPainter(),
-                HdAvgDistributionPainter(),
+                HDTodayPaint(),
+                HDLebelsPainter(),
+                // HdAvgDistributionPainter(),
                 // TodayHdPainter(),
               ],
             ),

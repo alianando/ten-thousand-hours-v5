@@ -5,8 +5,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../providers/storage_pro.dart';
 import '../../root/root.dart';
-import 'day_record.dart';
-import 'time_record.dart';
+import '../0_data_model/day_record.dart';
+import '../0_data_model/time_record.dart';
 import 'package:intl/intl.dart';
 
 final timeRecordProvider = NotifierProvider<TimeReocrdNotifier, TimeRecord>(
@@ -15,9 +15,9 @@ final timeRecordProvider = NotifierProvider<TimeReocrdNotifier, TimeRecord>(
 
 class TimeReocrdNotifier extends Notifier<TimeRecord> {
   @override
-  TimeRecord build() {
-    return TimeRecordService.createEmptyRecord();
-  }
+  TimeRecord build() => TimeRecordService.createEmptyRecord();
+
+  List<DayEntry> get days => state.allDays;
 
   void retrieveRecord({bool debug = false}) async {
     try {
@@ -39,33 +39,33 @@ class TimeReocrdNotifier extends Notifier<TimeRecord> {
         state = varifiedLocals;
         pout('Local data added', debug, level: debugL);
       }
-      // final supabaseDays = await RecordDBService.supabaseRecord(
-      //   debug: false,
-      //   dl: debugL,
-      // );
-      // final supabaseDayIsCorrect = supabaseDays.isNotEmpty;
-      // final supabaseLastUpdate = supabaseDayIsCorrect
-      //     ? supabaseDays.last.events.last.dt
-      //     : DateTime(1999);
-      // pout('supabase last update $supabaseLastUpdate', debug, level: debugL);
-      // if (supabaseLastUpdate.isAfter(localLastUpdate)) {
-      //   final verifiedSupabaseDays = TimeRecordService.sanitize(
-      //     TimeRecord(days: supabaseDays),
-      //   );
-      //   state = verifiedSupabaseDays;
-      //   pout('Supabase data added', false, level: debugL);
-      //   RecordDBService.saveToLocal(ref, verifiedSupabaseDays.days);
-      //   return;
-      // }
-      // if (supabaseLastUpdate.isAtSameMomentAs(localLastUpdate)) {
-      //   pout('Identical Data', debug, level: debugL);
-      //   return;
-      // }
-      // if (localLastUpdate.isAfter(supabaseLastUpdate)) {
-      //   pout('Supabase data is old', debug, level: debugL);
-      //   RecordDBService.saveToSupabase(localDays);
-      //   return;
-      // }
+      final supabaseDays = await RecordDBService.supabaseRecord(
+        debug: false,
+        dl: debugL,
+      );
+      final supabaseDayIsCorrect = supabaseDays.isNotEmpty;
+      final supabaseLastUpdate = supabaseDayIsCorrect
+          ? supabaseDays.last.events.last.dt
+          : DateTime(1999);
+      pout('supabase last update $supabaseLastUpdate', debug, level: debugL);
+      if (supabaseLastUpdate.isAfter(localLastUpdate)) {
+        final verifiedSupabaseDays = TimeRecordService.sanitize(
+          TimeRecord(days: supabaseDays),
+        );
+        state = verifiedSupabaseDays;
+        pout('Supabase data added', false, level: debugL);
+        RecordDBService.saveToLocal(ref, verifiedSupabaseDays.days);
+        return;
+      }
+      if (supabaseLastUpdate.isAtSameMomentAs(localLastUpdate)) {
+        pout('Identical Data', debug, level: debugL);
+        return;
+      }
+      if (localLastUpdate.isAfter(supabaseLastUpdate)) {
+        pout('Supabase data is old', debug, level: debugL);
+        RecordDBService.saveToSupabase(localDays);
+        return;
+      }
     } catch (e) {
       debugPrint('Error retrieving record: $e');
     }
@@ -104,18 +104,19 @@ class RecordDBService {
       final local = ref.read(storageProvider);
       final localDayString = local.getString(_dayEntriesKey);
       if (localDayString != null) {
+        // pout('extracting $localDayString', true);
         List<DayEntry> localDay = jsonDecode(localDayString)
             .map((e) {
               return DayEntry.fromJson(e);
             })
             .whereType<DayEntry>()
             .toList();
-        pout('localDay: $localDay', debug, level: debugLevel);
+        // pout('localDay: $localDay', debug, level: debugLevel);
         if (localDay.length < 2) {
           return localDay;
         }
         localDay.sort((a, b) => a.dt.compareTo(b.dt));
-
+        // pout('extracting ${localDay.last.lastTimeStapm.type}', true);
         return localDay;
       }
     } catch (e) {
@@ -168,7 +169,9 @@ class RecordDBService {
       final dayEntryJson = days.map((day) => day.toJson()).toList();
       final dayString = jsonEncode(dayEntryJson);
       ref.read(storageProvider).setString(_dayEntriesKey, dayString);
-      pout('${days.length} days saved to local', true);
+      // pout('${days.length} days saved to local', true);
+      // pout('saving ${days.last.lastTimeStapm.type}', true);
+      // pout('saved: $dayString', true);
     } catch (e) {
       debugPrint('Error saving day entries: $e');
     }
@@ -230,7 +233,6 @@ class TimeRecordProviderDebugView extends ConsumerWidget {
                 //   trailing: Text('Events: ${day.events.length}'),
                 // ),
                 Text('Day $date'),
-                Text('  ${day.durPoint.dur.inMinutes} minutes.'),
                 ...day.events.map((event) {
                   return Text('  $event');
                 }),

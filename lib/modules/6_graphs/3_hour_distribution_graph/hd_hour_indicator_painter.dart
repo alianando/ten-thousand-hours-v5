@@ -28,8 +28,10 @@ class HdHourIndicatorPainterPainter extends CustomPainter {
       ..color = Colors.grey
       ..strokeWidth = 1.5
       ..style = PaintingStyle.stroke;
-    // Path p = Path();
-    // final hourVal = HDServices.hourlyXval;
+    TextPainter textPainter = TextPainter(
+      textDirection: TextDirection.ltr,
+      textAlign: TextAlign.center,
+    );
 
     for (int i = 0; i <= 24; i++) {
       final double x = (i / 24) * size.width;
@@ -37,6 +39,18 @@ class HdHourIndicatorPainterPainter extends CustomPainter {
         Offset(x, size.height + 4),
         Offset(x, size.height + 10),
         paint,
+      );
+      textPainter.text = TextSpan(
+        text: i.toString(),
+        style: const TextStyle(
+          color: Colors.black,
+          fontSize: 9,
+        ),
+      );
+      textPainter.layout();
+      textPainter.paint(
+        canvas,
+        Offset(x - textPainter.width / 2, size.height + 10),
       );
     }
   }

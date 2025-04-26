@@ -18,9 +18,13 @@ class TimeStamp {
     return TimeStamp(
       DateTime.parse(json['dt']),
       Duration(seconds: json['dur']),
-      json['typ'] == 'pause' ? TPType.pause : TPType.resume,
+      json['type'] == 'pause' ? TPType.pause : TPType.resume,
     );
   }
+
+  DateTime get date => dt;
+  Duration get duration => dur;
+  TPType get type => typ;
 
   Map<String, dynamic> toJson() {
     return {

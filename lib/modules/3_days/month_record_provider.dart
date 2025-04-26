@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ten_thousands_hours/modules/1_time_record/day_record.dart';
+import 'package:ten_thousands_hours/modules/0_data_model/day_record.dart';
 
 import '../1_time_record/time_record_provider.dart';
 import '../2_indices/indices_provider.dart';
@@ -30,7 +30,7 @@ class MonthRecordProviderDebugView extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('   dt: ${record.dt}'),
-                Text('   durPoint: ${record.durPoint}'),
+                Text('   durPoint: ${record.lastRecordedDur}'),
                 Text('   events: ${record.events.length}'),
               ],
             ),

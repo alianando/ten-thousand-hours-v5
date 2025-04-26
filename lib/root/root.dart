@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ten_thousands_hours/modules/1_time_record/time_record_provider.dart';
 
+import 'listener_layer.dart';
 import 'ticker_layer.dart';
 
 class _RootState extends ConsumerState<Root> {
@@ -16,7 +17,8 @@ class _RootState extends ConsumerState<Root> {
 
   @override
   Widget build(BuildContext context) {
-    return const TickerLayer();
+    // return const TickerLayer();
+    return ReactiveLayer(const TickerLayer());
   }
 }
 

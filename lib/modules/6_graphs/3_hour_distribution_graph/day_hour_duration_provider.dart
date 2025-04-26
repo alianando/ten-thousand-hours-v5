@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ten_thousands_hours/modules/1_time_record/time_record_provider.dart';
-import 'package:ten_thousands_hours/modules/1_time_record/time_stamp.dart';
+import 'package:ten_thousands_hours/modules/0_data_model/time_stamp.dart';
 import 'package:ten_thousands_hours/modules/6_graphs/3_hour_distribution_graph/dh_day_index_provider.dart';
 import 'package:ten_thousands_hours/root/root.dart';
 

@@ -157,4 +157,15 @@ class TimeFormatter {
   static String formatTime(DateTime time) {
     return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
   }
+
+  static String formatTimeCompact(DateTime time) {
+    int hours = time.hour;
+    String amPm = 'AM';
+    if (hours > 12) {
+      amPm = 'PM';
+      hours -= 12;
+    }
+    final minutes = time.minute;
+    return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')} $amPm';
+  }
 }

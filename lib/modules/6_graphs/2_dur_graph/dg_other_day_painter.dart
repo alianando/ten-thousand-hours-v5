@@ -1,21 +1,29 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ten_thousands_hours/modules/3_days/relevent_days_provider.dart';
+import 'package:ten_thousands_hours/modules/4_statistics/relevent_max_dur_provider.dart';
 import 'package:ten_thousands_hours/modules/5_coordinates/c.dart';
-import 'package:ten_thousands_hours/modules/6_graphs/1_primary_graph/pg_other_day_points_provider.dart';
 
 class DgOtherDayView extends ConsumerWidget {
   const DgOtherDayView({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final maxDurInMiliSec = ref.watch(releventMaxDurProvider).inMilliseconds;
+    final releventDays = ref.watch(releventDaysProvider);
+    final DateTime now = DateTime.now();
+    List<C> cordinates = releventDays.map((e) {
+      final y = (e.lastRecordedDur.inMilliseconds / maxDurInMiliSec).toDouble();
+      final z = (e.dt.difference(now).inDays.abs()).toDouble();
+      return C(0, y, z);
+    }).toList();
     return SizedBox(
       height: double.infinity,
       width: double.infinity,
       child: CustomPaint(
         painter: PgOtherDayPainter(
-          ref.watch(pgOtherDayPointsProvider).map((e) => e.last).toList(),
+          cordinates,
+          // ref.watch(pgOtherDayPointsProvider).map((e) => e.last).toList(),
         ),
       ),
     );

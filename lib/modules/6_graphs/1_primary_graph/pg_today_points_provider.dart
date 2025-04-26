@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../providers/ticker_provider.dart';
 import '../../../utils/dt_utils.dart';
-import '../../1_time_record/time_stamp.dart';
+import '../../0_data_model/time_stamp.dart';
 import '../../3_days/today_record_provider.dart';
 import '../../4_statistics/relevent_max_dur_provider.dart';
 import '../../5_coordinates/c.dart';

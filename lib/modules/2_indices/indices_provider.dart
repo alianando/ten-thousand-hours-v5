@@ -4,6 +4,35 @@ import 'package:ten_thousands_hours/modules/1_time_record/time_record_provider.d
 
 import 'indices_model.dart';
 
+final todayIndexProvider = Provider<int>((ref) {
+  final indices = ref.watch(indicesProvider);
+  return indices.todayIndex;
+});
+
+final weekIndicesProvider = Provider<List<int>>((ref) {
+  final indices = ref.watch(indicesProvider);
+  return indices.weekIndices;
+});
+
+final monthIndicesProvider = Provider<List<int>>((ref) {
+  final indices = ref.watch(indicesProvider);
+  return indices.monthIndices;
+});
+
+final relaventIndicesProvider = Provider<List<int>>((ref) {
+  final indices = ref.watch(indicesProvider);
+  final timeRecord = ref.watch(timeRecordProvider);
+
+  return timeRecord.allDays
+      .where(
+        (day) => day.dt.isAfter(
+          timeRecord.allDays.last.dt.subtract(const Duration(days: 15)),
+        ),
+      )
+      .map((day) => timeRecord.days.indexOf(day))
+      .toList();
+});
+
 final indicesProvider = NotifierProvider<IndicesNotifier, Indices>(
   IndicesNotifier.new,
 );
@@ -34,7 +63,7 @@ class IndicesNotifier extends Notifier<Indices> {
         todayIndex = i;
       }
     }
-    debugPrint('IndicesNotifier.build()');
+    // debugPrint('IndicesNotifier.build()');
     return Indices(
       todayIndex: todayIndex,
       weekIndices: weekIndices,

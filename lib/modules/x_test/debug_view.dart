@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ten_thousands_hours/modules/0_data_model/time_stamp.dart';
 import 'package:ten_thousands_hours/modules/2_indices/indices_provider.dart';
+import 'package:ten_thousands_hours/modules/3.2_data_providers.dart/current_status_provider.dart';
 
 import '../1_time_record/time_record_provider.dart';
 import '../3_days/relevent_days_provider.dart';
@@ -20,6 +22,10 @@ class DebugView extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Debug View'),
+        backgroundColor:
+            ref.watch(latestTimeStampProvider).type == TPType.resume
+                ? Colors.redAccent
+                : Colors.white,
         actions: const [EventButton()],
       ),
       body: ListView(
@@ -27,14 +33,15 @@ class DebugView extends ConsumerWidget {
         physics: const ScrollPhysics(),
         children: const [
           Text('Debug View'),
-          TodayRecordProviderDebugView(),
+          CurrentDurationView(),
+          // TodayRecordProviderDebugView(),
+          // TodayDurationProviderDebugView(),
           // PGStackView(),
           HDStackView(),
           SizedBox(height: 10),
           DurGraphStack(),
           // IndicesProviderDebugView(),
           // TodayRecordProviderDebugView(),
-          // TodayDurationProviderDebugView(),
           // TodayPrimaryGraphPointsProviderDebug(),
           // PgOtherDayPointsProviderDebugView(),
           // ReleventDaysProviderDebugView(),

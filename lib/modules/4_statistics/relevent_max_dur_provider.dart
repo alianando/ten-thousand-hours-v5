@@ -8,9 +8,12 @@ final releventMaxDurProvider = Provider<Duration>((ref) {
   final todayDur = ref.watch(todayDurProvider);
   Duration maxDur = todayDur;
   for (final day in otherReleventDays) {
-    if (day.durPoint.dur > maxDur) {
-      maxDur = day.durPoint.dur;
+    if (day.lastRecordedDur > maxDur) {
+      maxDur = day.lastRecordedDur;
     }
+  }
+  if (maxDur == Duration.zero) {
+    return const Duration(milliseconds: 1);
   }
   return maxDur;
 });

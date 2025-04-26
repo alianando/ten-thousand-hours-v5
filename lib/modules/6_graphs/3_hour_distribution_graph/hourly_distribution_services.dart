@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
-import 'package:ten_thousands_hours/modules/1_time_record/day_record.dart';
+import 'package:ten_thousands_hours/modules/0_data_model/day_record.dart';
 import 'package:ten_thousands_hours/root/root.dart';
 import 'package:ten_thousands_hours/utils/dt_utils.dart';
 
-import '../../1_time_record/time_stamp.dart';
+import '../../0_data_model/time_stamp.dart';
 import '../../5_coordinates/c.dart';
 
 class HDServices {
@@ -60,7 +60,7 @@ class HDServices {
     // Get a copy of events that are sorted and filtered to this day only
     // final events = List<TimeStamp>.from(day.events)
     //   ..sort((a, b) => a.dt.compareTo(b.dt));
-    final events = day.tps;
+    final events = day.timeStapms;
 
     // Skip calculation if we have fewer than 2 events
     if (events.length < 2) {
@@ -78,11 +78,11 @@ class HDServices {
       final currentEvent = events[i];
 
       // When we find a resume event, mark the start of an active period
-      if (lastResumeEvent == null && currentEvent.typ == TPType.resume) {
+      if (lastResumeEvent == null && currentEvent.isResume) {
         lastResumeEvent = currentEvent;
       }
       // When we find a pause after a resume, calculate the active duration
-      else if (currentEvent.typ == TPType.pause && lastResumeEvent != null) {
+      else if (currentEvent.type == TPType.pause && lastResumeEvent != null) {
         final startTime = lastResumeEvent.dt;
         final endTime = currentEvent.dt;
 

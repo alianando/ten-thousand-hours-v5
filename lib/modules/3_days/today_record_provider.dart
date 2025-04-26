@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ten_thousands_hours/modules/1_time_record/day_record.dart';
-import 'package:ten_thousands_hours/modules/1_time_record/time_stamp.dart';
+import 'package:ten_thousands_hours/modules/0_data_model/day_record.dart';
+import 'package:ten_thousands_hours/modules/0_data_model/time_stamp.dart';
 
 import '../1_time_record/time_record_provider.dart';
 import '../2_indices/indices_provider.dart';
@@ -10,9 +9,9 @@ import '../2_indices/indices_provider.dart';
 final todayProvider = Provider<DayEntry>((ref) {
   final indices = ref.watch(indicesProvider);
   final timeRecord = ref.read(timeRecordProvider);
-  debugPrint('todayProvider');
+  // debugPrint('todayProvider');
   if (indices.todayIndex < 0) {
-    return DayRecordService.createDay(DateTime.now());
+    return DayEntry.create(DateTime.now());
   }
 
   return timeRecord.days[indices.todayIndex];
@@ -29,8 +28,12 @@ class TodayRecordProviderDebugView extends ConsumerWidget {
       children: [
         const Text('Today Record Provider'),
         Text('   dt: ${today.dt}'),
-        Text('   durPoint: ${today.durPoint}'),
-        Text('   events: ${today.events}'),
+        Text('   durPoint: ${today.lastRecordedDur}'),
+        Text('   events: ${today.events.length}'),
+        for (var event in today.events)
+          Text(
+            '    ${event.dt.hour}:${event.date.minute}:${event.date.second} ${event.typ == TPType.pause ? 'pase' : 'resume'} ${event.dur}',
+          ),
       ],
     );
   }
@@ -38,7 +41,7 @@ class TodayRecordProviderDebugView extends ConsumerWidget {
 
 final statusProvider = Provider<TPType>((ref) {
   final today = ref.watch(todayProvider);
-  return today.tps.last.typ;
+  return today.lastTimeStapm.typ;
 });
 
 class EventButton extends ConsumerWidget {

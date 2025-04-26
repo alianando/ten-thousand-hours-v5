@@ -3,10 +3,11 @@ import 'package:flutter/foundation.dart';
 import 'day_record.dart';
 
 class TimeRecord {
-  /// Collection of day models containing all tracking data
   final List<DayEntry> days;
 
   const TimeRecord({required this.days});
+
+  List<DayEntry> get allDays => List.from(days);
 
   /// Serialize record to JSON string
   String toJsonString() => jsonEncode(toJson());
@@ -114,7 +115,7 @@ class TimeRecordService {
   //
   static TimeRecord createEmptyRecord() {
     final now = DateTime.now();
-    final today = DayRecordService.createDay(now);
+    final today = DayEntry.create(now);
 
     return TimeRecord(
       days: [today],
@@ -124,25 +125,24 @@ class TimeRecordService {
   /// Adds a new time point event (toggle between pause/resume)
   //
   static TimeRecord addActiveEvent(TimeRecord record, DateTime at) {
-    final List<DayEntry> updatedDays = List.from(record.days);
+    var updatedDays = record.allDays;
 
     // Find today's index or create today if it doesn't exist
-    final todayDate = DateTime(at.year, at.month, at.day);
-    final todayIndex = updatedDays.indexWhere((day) =>
-        day.dt.year == todayDate.year &&
-        day.dt.month == todayDate.month &&
-        day.dt.day == todayDate.day);
+    final targetDate = DateTime(at.year, at.month, at.day);
+    final targetIndex = updatedDays.indexWhere(
+      (day) =>
+          day.dt.year == targetDate.year &&
+          day.dt.month == targetDate.month &&
+          day.dt.day == targetDate.day,
+    );
 
-    if (todayIndex >= 0) {
+    if (targetIndex >= 0) {
       // Update existing day
-      updatedDays[todayIndex] = DayRecordService.addActiveEvent(
-        day: updatedDays[todayIndex],
-        dtAt: at,
-      );
+      updatedDays[targetIndex] = updatedDays[targetIndex].addActiveEvent(at);
     } else {
       // Create new day
-      final newDay = DayRecordService.createDay(at);
-      final withEvent = DayRecordService.addActiveEvent(day: newDay, dtAt: at);
+      final newDay = DayEntry.create(at);
+      final withEvent = newDay.addActiveEvent(at);
       updatedDays.add(withEvent);
 
       // Sort days by date
@@ -152,49 +152,16 @@ class TimeRecordService {
     return TimeRecord(days: updatedDays);
   }
 
-  /// Updates duration without adding a toggle point (for real-time updates).
-  //
-  static TimeRecord updateDuration(
-    TimeRecord record,
-    DateTime at, {
-    bool debug = false,
-  }) {
-    // final now = DateTime.now();
-    final List<DayEntry> updatedDays = List.from(record.days);
-
-    // Find today's index or return unchanged if today doesn't exist
-    final todayDate = DateTime(at.year, at.month, at.day);
-    final todayIndex = updatedDays.indexWhere(
-      (day) =>
-          day.dt.year == todayDate.year &&
-          day.dt.month == todayDate.month &&
-          day.dt.day == todayDate.day,
-    );
-
-    if (todayIndex >= 0) {
-      updatedDays[todayIndex] = DayRecordService.unactiveDtUpdate(
-        day: updatedDays[todayIndex],
-        dtAt: at,
-      );
-
-      return record.copyWith(
-        // lastUpdate: at,
-        days: updatedDays,
-      );
-    }
-    if (debug) debugPrint('No day found for updateDuration');
-    return record;
-  }
-
   /// Ensures all days are properly closed/finalized
   //
   static TimeRecord sanitize(TimeRecord record) {
-    final List<DayEntry> sanitizedDays = [];
-
+    // debugPrint('sanitized beforr ${record.allDays.last.lastTimeStapm.typ}');
+    List<DayEntry> sanitizedDays = [];
+    // sanitizedDays.addAll(record.allDays);
     for (final day in record.days) {
       sanitizedDays.add(day.corrected());
     }
-
+    // debugPrint('sanitized after ${sanitizedDays.last.lastTimeStapm.typ}');
     final todayDate = DateTime.now();
     final todayIndex = sanitizedDays.indexWhere(
       (day) =>
@@ -203,13 +170,13 @@ class TimeRecordService {
           day.dt.day == todayDate.day,
     );
     if (todayIndex < 0) {
-      final newDay = DayRecordService.createDay(todayDate);
+      final newDay = DayEntry.create(todayDate);
       sanitizedDays.add(newDay);
     }
     // Sort days by date
     sanitizedDays.sort((a, b) => a.dt.compareTo(b.dt));
 
-    return record.copyWith(
+    return TimeRecord(
       days: sanitizedDays,
     );
   }
@@ -217,7 +184,7 @@ class TimeRecordService {
   /// Finalizes a day by adding an end-of-day timepoint
   //
   static TimeRecord endDay(TimeRecord record, DateTime date) {
-    final List<DayEntry> updatedDays = List.from(record.days);
+    var updatedDays = record.allDays;
 
     // Find the day's index
     final dateOnly = DateTime(date.year, date.month, date.day);
@@ -226,9 +193,7 @@ class TimeRecordService {
         day.dt.month == dateOnly.month &&
         day.dt.day == dateOnly.day);
 
-    if (dayIndex >= 0) {
-      updatedDays[dayIndex] = DayRecordService.endDay(updatedDays[dayIndex]);
-    }
+    if (dayIndex >= 0) updatedDays[dayIndex] = updatedDays[dayIndex].end();
 
     return TimeRecord(days: updatedDays);
   }
